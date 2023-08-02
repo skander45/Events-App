@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import { useAuthState } from "react-firebase-hooks/auth"
 import { Box, AppBar, Toolbar, styled, Stack, IconButton, Badge, Button } from '@mui/material';
 import Link from 'next/link'
-import { FaCalendarDay } from "react-icons/fa"
 
 
 
@@ -15,12 +14,7 @@ const Header: NextPage = () => {
     const [user, setuser] = useAuthState(auth)
     const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push('/');
-        }
-        console.log(user)
-    }, [user])
+
     const AppBarStyled = styled(AppBar)(({ theme }) => ({
         boxShadow: 'none',
         background: theme.palette.background.paper,
@@ -48,7 +42,11 @@ const Header: NextPage = () => {
                                 Return to Home
                             </button>
                         </Link>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => auth.signOut()}>Sign Out
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => {
+                            auth.signOut()
+                            document.cookie = "state=not connected";
+                            router.push('/');
+                        }}>Sign Out
                         </button>
                         <div className="sm:text-3xl text-1xl font-thin text-black ">
                             {user?.displayName}

@@ -3,12 +3,21 @@ import Head from 'next/head'
 import { auth } from "./firebase"
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 
 import React from "react";
 
-import '@progress/kendo-theme-default/dist/all.css';
+function getCookie(cName: any) {
+  const name = cName + "=";
+  const cDecoded = decodeURIComponent(document.cookie); //to be careful
+  const cArr = cDecoded.split('; ');
+  let res;
+  cArr.forEach(val => {
+    if (val.indexOf(name) === 0) res = val.substring(name.length);
+  })
+  return res;
+}
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -18,40 +27,49 @@ const Home: NextPage = () => {
   const login = async () => {
     setShowAlert(false)
     const result = await signInWithPopup(auth, googleAuth)
-    if (user) {
-      //router.push('/Home');
-      console.log(user)
+
+  }
+  const [state, setState] = useState(false);
+  useEffect(() => {
+    if (getCookie("state") == "connected") {
+      router.push('/Home');
+      setState(false)
+    }
+    else {
+      setState(true)
 
     }
-  }
-  useEffect(() => {
     if (user) {
-      if (user?.email?.slice(-11) == "cognira.com") { router.push('/Home'); }
+      if (user/*?.email?.slice(-11) == "cognira.com"*/) {
+        document.cookie = "state=connected";
+        router.push('/Home');
+      }
       else {
         setShowAlert(true)
         auth.signOut()
       }
     }
-  }, [user])
+  })
 
   const [showAlert, setShowAlert] = React.useState(false);
 
   return (
     <>
-      {!user && <> <Head>
-        <title>Events Planner</title>
-        <meta name="description" content="Create Events for Cognira" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-        <div className="relative overflow-hidden bg-black">
+      {state && <>
+        <Head>
+          <title>Events Planner</title>
+          <meta name="description" content="Create Events for Cognira" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <div className="relative overflow-hidden ">
 
           <div className="bg-hero-section bg-no-repeat h-screen bg-center bg-cover ">
-            <video autoPlay loop muted className="blur absolute inset-0 object-cover h-screen xl:h-auto w-full ">
+            {/*<video autoPlay loop muted className="blur absolute inset-0 object-cover h-screen xl:h-auto w-full ">
               <source
                 src="video.mp4"
                 type="video/mp4"
               />
-            </video>
+      </video>*/}
             <div className="absolute inset-0">
 
               <div className="sm:text-7xl text-5xl font-bold sm:my-50 my-32 mx-16 text-center text-black ">
@@ -95,7 +113,9 @@ const Home: NextPage = () => {
           </div>
 
 
-        </div>    </>}
+        </div>
+
+      </>}
 
 
     </>

@@ -1,32 +1,27 @@
-import { prisma } from '../../lib/prisma'
 import Header from '../../components/header1'
-import { FormWithCustomEditor } from "./custom-form";
-import { Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView } from '@progress/kendo-react-scheduler';
+import { FormWithCustomEditor } from "./components/custom-form";
+import {
+    Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView, SchedulerProportionalViewItem
+} from '@progress/kendo-react-scheduler';
 import React, { useEffect } from 'react';
-import { GetServerSideProps } from 'next';
-export const getServerSideProps: GetServerSideProps = async () => {
-    const events = await prisma.event.findMany()
-    return {
-        props: {
-            events: JSON.parse(JSON.stringify(events))
-        }
-    }
-}
-interface Events {
-    events: {
-        eventId: number
-        uidcreator: string
-        title: string
-        start_date_and_time: string
-        end_date_and_time: string
-        description: string
-        location: string
-        budget: number
+import '@progress/kendo-theme-default/dist/all.css';
+import { useState } from 'react'
+import { useRouter } from 'next/router';
+import { CustomItem } from "./components/CustomItem";
 
-    }[]
+
+function getCookie(cName: any) {
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const cArr = cDecoded.split('; ');
+    let res;
+    cArr.forEach(val => {
+        if (val.indexOf(name) === 0) res = val.substring(name.length);
+    })
+    return res;
 }
 
-const Calendar = ({ events }: Events) => {
+const Calendar = () => {
     const currentDate: Date = new Date();
     const currentYear = new Date().getFullYear();
     const parseAdjust = (eventDate: any) => {
@@ -34,8 +29,35 @@ const Calendar = ({ events }: Events) => {
         date.setFullYear(currentYear);
         return date;
     };
+    const router = useRouter();
+    const [state, setState] = useState(false);
+    const [data, setData] = useState([]);
+    const [count, setCount] = useState(0);
 
-    const sampleData = events.map(dataItem => (
+    useEffect(() => {
+        if (getCookie("state") == "not connected") {
+            router.push('/');
+            setState(false)
+        }
+        else {
+            setState(true)
+        }
+        fetch('/api/getEvents', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+
+        }).then(response => response.json()).then(data => {
+            setData(JSON.parse(JSON.stringify(data)))
+        })
+        const interval = setInterval(() => {
+            setCount(count + 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [count])
+
+    const sampleData = data.map((dataItem: any) => (
         {
             id: dataItem.eventId,
             start: parseAdjust(dataItem.start_date_and_time),
@@ -45,20 +67,26 @@ const Calendar = ({ events }: Events) => {
             budget: dataItem.budget,
             location: dataItem.location,
             uidcreator: dataItem.uidcreator,
-
         }
     ));
+
     return (
         <div>
-            <Header />
-            <Scheduler data={sampleData} height={865} defaultDate={currentDate} editable={true} form={FormWithCustomEditor} defaultView='week'>
-                <AgendaView />
-                <TimelineView />
-                <DayView />
-                <WeekView />
-                <MonthView />
-            </Scheduler>;
-        </div>
+            {state && <>
+                <Header />
+                <Scheduler item={CustomItem} data={sampleData} height={869} defaultDate={currentDate} editable={true} form={FormWithCustomEditor} defaultView='week' style={{
+                    fontSize: 15
+                }} >
+                    <AgendaView />
+                    <TimelineView />
+                    <DayView />
+                    <WeekView viewItem={SchedulerProportionalViewItem} />
+                    <MonthView />
+                </Scheduler>
+
+
+            </>}
+        </div >
     );
 }
 export default Calendar

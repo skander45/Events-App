@@ -7,19 +7,9 @@ import { Box, AppBar, Toolbar, styled, Stack, IconButton, Badge, Button } from '
 import Link from 'next/link'
 import { FaCalendarDay } from "react-icons/fa"
 
-
-
 const Header: NextPage = () => {
-    const [loading, setLoading] = useState(true);
-
     const [user, setuser] = useAuthState(auth)
     const router = useRouter();
-
-    useEffect(() => {
-        if (!user) {
-            router.push('/');
-        }
-    }, [user])
     const AppBarStyled = styled(AppBar)(({ theme }) => ({
         boxShadow: 'none',
         background: theme.palette.background.paper,
@@ -33,6 +23,7 @@ const Header: NextPage = () => {
         width: '100%',
         color: theme.palette.text.secondary,
     }));
+
     return (
         <div>
             <AppBarStyled position="sticky" color="default">
@@ -48,7 +39,12 @@ const Header: NextPage = () => {
                                 Open Calendar
                             </button>
                         </Link>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => auth.signOut()}>Sign Out
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => {
+                            auth.signOut()
+                            document.cookie = "state=not connected";
+                            router.push('/');
+                        }
+                        }>Sign Out
                         </button>
                         <div className="sm:text-3xl text-1xl font-thin text-black ">
                             {user?.displayName}
@@ -58,7 +54,6 @@ const Header: NextPage = () => {
                     </Stack>
                 </ToolbarStyled>
             </AppBarStyled>
-
         </div >
     )
 }

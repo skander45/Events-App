@@ -20,13 +20,13 @@ export const CustomFormEditor = (props: SchedulerFormEditorProps) => {
             <div className="k-form-field">
                 <Label>Location</Label>
                 <div className="k-form-field-wrap">
-                    <Field name={"Location"} component={TextArea} rows={1} />
+                    <Field name={"location"} component={TextArea} rows={1} />
                 </div>
             </div>
             <div className="k-form-field">
                 <Label>Budget</Label>
                 <div className="k-form-field-wrap">
-                    <Field name={"Budget"} component={NumericTextBox} rows={1} />
+                    <Field name={"budget"} component={NumericTextBox} rows={1} />
                 </div>
             </div>
 
@@ -34,7 +34,7 @@ export const CustomFormEditor = (props: SchedulerFormEditorProps) => {
             <div className="k-form-field">
                 <Label>Note</Label>
                 <div className="k-form-field-wrap">
-                    <Field name={"Note"} component={TextArea} rows={1} />
+                    <Field name={"description"} component={TextArea} rows={1} />
                 </div>
             </div>
             <div className="k-form-field">
@@ -42,22 +42,22 @@ export const CustomFormEditor = (props: SchedulerFormEditorProps) => {
                 <div className="k-form-field-wrap">
                     <div style={{ width: "100%", display: "flex", alignItems: "center" }}>
                         <Field
-                            name={"Start"}
+                            name={"start_date_and_time"}
                             component={props.startEditor || DatePicker}
                             as={DateTimePicker}
                             rows={1}
-                            width={"140px"}
+                            width={"200px"}
                             format="t"
                         />
                         &nbsp;
                         <Label>End</Label>
                         &nbsp;
                         <Field
-                            name={"End"}
+                            name={"end_date_and_time"}
                             component={props.endEditor || DatePicker}
                             as={DateTimePicker}
                             rows={1}
-                            width={"140px"}
+                            width={"200px"}
                             format="t"
                         />
                     </div>

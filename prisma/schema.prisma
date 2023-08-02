@@ -25,27 +25,30 @@ model Event {
 }
 
 model Participant {
-  Event        Event  @relation(fields: [eventEventId], references: [eventId])
+  Event        Event   @relation(fields: [eventEventId], references: [eventId])
   eventEventId Int
-  uid          String
+  name         String
+  uid          String?
 
-  @@id([eventEventId, uid])
+  @@id([eventEventId, name])
 }
 
 model Suggestion {
   suggestionId  Int       @id @default(autoincrement())
-  uid           String?
+  name          String?
   date_and_time DateTime?
   suggestion    String?
+  uid           String?
   Event         Event     @relation(fields: [eventEventId], references: [eventId])
   eventEventId  Int
 }
 
 model Feedback {
   feedbackId    Int       @id @default(autoincrement())
-  uid           String?
+  name          String?
   date_and_time DateTime?
   feedback      String?
   Event         Event     @relation(fields: [eventEventId], references: [eventId])
   eventEventId  Int
+  uid           String?
 }
