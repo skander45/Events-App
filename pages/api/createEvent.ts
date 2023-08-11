@@ -13,7 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { title, location, description, uidcreator, start_date_and_time, end_date_and_time, budget } = req.body;
 
   try {
-    // Use Prisma Client to insert data into the database
     await prisma.event.create({
       data: {
         title,

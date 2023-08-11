@@ -1,4 +1,4 @@
-import Header from '../../components/header1'
+import Header from './components/header1'
 import { FormWithCustomEditor } from "./components/custom-form";
 import {
     Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView, SchedulerProportionalViewItem
@@ -8,6 +8,7 @@ import '@progress/kendo-theme-default/dist/all.css';
 import { useState } from 'react'
 import { useRouter } from 'next/router';
 import { CustomItem } from "./components/CustomItem";
+import { colorGradientA } from '@progress/kendo-react-inputs/dist/npm/messages';
 
 
 function getCookie(cName: any) {
@@ -55,6 +56,7 @@ const Calendar = () => {
             setCount(count + 1);
         }, 1000);
         return () => clearInterval(interval);
+
     }, [count])
 
     const sampleData = data.map((dataItem: any) => (
@@ -67,15 +69,17 @@ const Calendar = () => {
             budget: dataItem.budget,
             location: dataItem.location,
             uidcreator: dataItem.uidcreator,
+            isAllDay: (Number(String(dataItem.end_date_and_time).slice(5, 7)) - Number(String(dataItem.start_date_and_time).slice(5, 7)) >= 1 ||
+                Number(String(dataItem.end_date_and_time).slice(8, 10)) - Number(String(dataItem.start_date_and_time).slice(8, 10)) >= 1)
         }
     ));
-
     return (
-        <div>
+        <div >
             {state && <>
                 <Header />
-                <Scheduler item={CustomItem} data={sampleData} height={869} defaultDate={currentDate} editable={true} form={FormWithCustomEditor} defaultView='week' style={{
-                    fontSize: 15
+                <Scheduler item={CustomItem} data={sampleData} height={890} defaultDate={currentDate} editable={true} form={FormWithCustomEditor} defaultView='week' style={{
+                    fontSize: 14
+
                 }} >
                     <AgendaView />
                     <TimelineView />

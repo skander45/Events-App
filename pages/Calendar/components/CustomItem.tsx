@@ -2,18 +2,17 @@ import {
     SchedulerItem,
     SchedulerItemProps, SchedulerItemHandle
 } from '@progress/kendo-react-scheduler';
-import React, { useEffect } from 'react';
+import React from 'react';
 import '@progress/kendo-theme-default/dist/all.css';
 import { useState } from 'react'
-import { useRouter } from 'next/router';
 import { Offset, Popup } from "@progress/kendo-react-popup";
 import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
-import { PaperClipIcon } from '@heroicons/react/20/solid'
-import zIndex from '@mui/material/styles/zIndex';
 import { Suggestions } from './Suggestions';
 import { Participants } from './Participants';
 import { AddParticipant } from './AddParticipant';
+import { UpdateEvent } from './UpdateEvent';
+import { Feedbacks } from './Feedbacks';
 
 export const CustomItem = (props: SchedulerItemProps) => {
     const ref = React.useRef<SchedulerItemHandle>(null);
@@ -21,23 +20,31 @@ export const CustomItem = (props: SchedulerItemProps) => {
     const [showEdit, setShowEdit] = React.useState(false);
     const offset: Offset = { left: -150, top: 100 };
     const [user, setuser] = useAuthState(auth)
-    const currentYear = new Date().getFullYear();
-    const parseAdjust = (eventDate: any) => {
-        const date = new Date(eventDate);
-        date.setFullYear(currentYear);
-        return date;
+    const [inputValue, setInputValue] = useState('');
+    const now = new Date()
+    const handleChange = (e: any) => {
+        setInputValue(e.target.value);
     };
-    const router = useRouter();
-    const [state, setState] = useState(false);
-    const [data, setData] = useState([]);
-    const [count, setCount] = useState(0);
-    const addParticipant = async (id: any) => {
+    const [inputValueFeedback, setInputValueFeedback] = useState('');
+
+    const handleChangeFeedback = (e: any) => {
+        setInputValueFeedback(e.target.value);
+
+    };
+
+
+    const handleSubmitFeedback = async (e: any, id: any) => {
+        e.preventDefault();
+        console.log(e)
         const formData1 = {
             eventEventId: id,
             name: user?.displayName,
+            feedback: inputValueFeedback,
+            uid: user?.uid,
+            date_and_time: new Date(),
         };
         try {
-            const response = await fetch('/api/createParticipant', {
+            const response = await fetch('/api/createFeedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,13 +60,8 @@ export const CustomItem = (props: SchedulerItemProps) => {
         } catch (error) {
             console.error('Error:', error);
         }
+        console.log(inputValueFeedback);
     }
-    const [inputValue, setInputValue] = useState('');
-
-    const handleChange = (e: any) => {
-        setInputValue(e.target.value);
-    };
-
     const handleSubmit = async (e: any, id: any) => {
         e.preventDefault();
         const formData1 = {
@@ -86,9 +88,7 @@ export const CustomItem = (props: SchedulerItemProps) => {
         } catch (error) {
             console.error('Error:', error);
         }
-        console.log(inputValue);
     }
-
     return (
         <React.Fragment>
             <SchedulerItem
@@ -97,22 +97,23 @@ export const CustomItem = (props: SchedulerItemProps) => {
                     ...props.style,
                     background: '#0080C9',
                 }}
+
                 onClick={() => {
-                    setShow(!show)
+
+                    if (showEdit) { setShowEdit(!showEdit) }
+                    else { setShow(!show) }
+                    //setShowEdit(!showEdit)
                 }}
                 ref={ref}
-
+                onDoubleClick={() => console.log("edit")}
             />
             <Popup
                 show={show}
-
-
                 anchor={ref.current && ref.current.element}
-
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div className="rounded" style={{ width: 650, height: 290, fontSize: 19, overflow: "auto", zIndex: 11 }}>
+                <div className="rounded" style={{ width: 650, height: 290, fontSize: 19, overflow: "auto" }}>
                     <div className="p-4">
                         <div>
                             <div className="px-7 sm:px-0">
@@ -142,26 +143,47 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                             {props.dataItem.description}
                                         </dd>
                                     </div>
-                                    <AddParticipant id={props.dataItem.id} />
+                                    {now < props.dataItem.end && <AddParticipant id={props.dataItem.id} />}
                                     <Participants id={props.dataItem.id} />
-                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">Add suggestion</dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                            <form onSubmit={(e) => {
-                                                handleSubmit(e, props.dataItem.id);
+                                    {now < props.dataItem.end && <>
+                                        <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                            <dt className="text-sm font-medium leading-6 text-gray-900">Add suggestion</dt>
+                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                <form onSubmit={(e) => {
+                                                    handleSubmit(e, props.dataItem.id);
 
-                                            }}>
-                                                <input
-                                                    type="text"
-                                                    value={inputValue}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter a suggestion"
-                                                />
-                                                <button type="submit">Send suggestion</button>
-                                            </form>
-                                        </dd>
-                                    </div>
-                                    <Suggestions id={props.dataItem.id} />
+                                                }}>
+                                                    <input
+                                                        type="text"
+                                                        value={inputValue}
+                                                        onChange={handleChange}
+                                                        placeholder="Enter a suggestion"
+                                                    />
+                                                    <button type="submit">Send suggestion</button>
+                                                </form>
+                                            </dd>
+                                        </div>
+                                        <Suggestions id={props.dataItem.id} /> </>}
+                                    {now > props.dataItem.end && <>
+                                        <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                            <dt className="text-sm font-medium leading-6 text-gray-900">Add feedback</dt>
+                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                <form onSubmit={(e) => {
+                                                    handleSubmitFeedback(e, props.dataItem.id);
+
+                                                }}>
+                                                    <input
+                                                        type="text"
+                                                        value={inputValueFeedback}
+                                                        onChange={handleChangeFeedback}
+                                                        placeholder="Enter a feedback"
+                                                    />
+                                                    <button type="submit">Send feedback</button>
+                                                </form>
+                                            </dd>
+                                        </div>
+                                        <Feedbacks id={props.dataItem.id} />
+                                    </>}
                                 </dl>
                             </div>
                         </div>
@@ -179,34 +201,14 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
             <Popup
                 show={showEdit}
-                anchorAlign={{
-                    horizontal: "center",
-                    vertical: "center",
-                }}
-                popupAlign={{
-                    horizontal: "center",
-                    vertical: "center",
-                }}
                 anchor={ref.current && ref.current.element}
-
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div className="rounded" style={{ overflow: "auto", width: 650, height: 290, fontSize: 18, backgroundColor: "#F2F2F2" }}>
-                    <div className="p-4">
-                        <h2>{props.dataItem.id}</h2>
-                        <h2>{props.dataItem.title}</h2>
-                        <h1>{props.dataItem.description}</h1>
-                        <h1>{props.dataItem.Location}</h1>
-                        <h1>{props.dataItem.budget}</h1>
-                        <h1>{String(props.dataItem.start)}</h1>
-                        <h1>{String(props.dataItem.end)}</h1>
-                    </div>
-
-                    <button
-                    >Submit</button>
-                    <button onClick={() => setShowEdit(!showEdit)}>Close</button>
+                <div className="rounded" style={{ overflow: "auto", width: 650, height: 320, fontSize: 19, backgroundColor: "#F2F2F2" }}>
+                    <UpdateEvent id={props.dataItem.id} />
                 </div>
+                <button onClick={() => setShowEdit(!showEdit)}>Close</button>
             </Popup>
         </React.Fragment>
     )

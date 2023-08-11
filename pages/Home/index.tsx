@@ -4,19 +4,19 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import { useAuthState } from "react-firebase-hooks/auth"
 
-import Header from '../../components/header'
+import Header from './components/header'
 
 
 import { Grid, Box } from '@mui/material';
-import Attended_events from '../../components/Attended_events';
-import Recent_Events from '../../components/Recent_Events';
-import Upcoming_Events2 from '../../components/Upcoming_Events2';
-import Upcoming_Events1 from '../../components/Upcoming_Events1';
+import { Attended_events } from './components/Attended_events';
+import Recent_Events from './components/Recent_Events';
+import Upcoming_Events2 from './components/Upcoming_Events2';
+import { Upcoming_Events1 } from './components/Upcoming_Events1';
 
 
 function getCookie(cName: any) {
     const name = cName + "=";
-    const cDecoded = decodeURIComponent(document.cookie); //to be careful
+    const cDecoded = decodeURIComponent(document.cookie);
     const cArr = cDecoded.split('; ');
     let res;
     cArr.forEach(val => {
@@ -42,7 +42,7 @@ const Home: NextPage = () => {
 
     })
 
-
+    console.log(user)
     return (
         <div>
             {state && <>
@@ -56,10 +56,10 @@ const Home: NextPage = () => {
                         <Grid item xs={12} lg={6}>
                             <Grid container spacing={3}>
                                 <Grid item xs={12}>
-                                    <Attended_events />
+                                    <Attended_events id={user?.uid} />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Upcoming_Events1 />
+                                    <Upcoming_Events1 id={user?.uid} />
                                 </Grid>
                             </Grid>
                         </Grid>
