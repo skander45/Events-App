@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+
 export const AddParticipant = (props: any) => {
     const [user, setuser] = useAuthState(auth)
     const [participants, setParticipants] = useState([]);
@@ -16,7 +19,7 @@ export const AddParticipant = (props: any) => {
         })
         let uids = participants.map((item: any) => item.uid)
         setGoing(uids.includes(user?.uid))
-    })
+    }, [])
     const addParticipant = async (id: any) => {
         const formData1 = {
             eventEventId: id,
@@ -60,18 +63,31 @@ export const AddParticipant = (props: any) => {
     }
     return (
         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Going ?</dt>
+            <dt className="font-small leading-6 text-gray-900">Going ?</dt>
             {going && <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                <div>
-                    <button className="text-sm font-medium leading-6 text-gray-900" onClick={() => addParticipant(props.id)}>Yes</button>
+                <Box sx={{ '& button': { ml: 10 } }}>
+                    <Button style={{
 
-                    <button onClick={() => deleteParticipant(props.id, user?.uid)}>No</button>
-                </div>
+                        borderColor: "#004B8D"
+                    }} variant="contained" size="small" disabled onClick={() => addParticipant(props.id)}>Yes</Button>
+
+                    <Button style={{
+
+                        borderColor: "#004B8D"
+                    }} variant="contained" size="small" onClick={() => deleteParticipant(props.id, user?.uid)}>No</Button>
+                </Box>
             </dd>}
             {!going && <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                <button onClick={() => addParticipant(props.id)} >Yes</button>
+                <Box sx={{ '& button': { ml: 10 } }}>
+                    <Button style={{
 
-                <button className="text-sm font-medium leading-6 text-gray-900" >No</button>
+                        borderColor: "#004B8D"
+                    }} variant="contained" size="small" onClick={() => addParticipant(props.id)} >Yes</Button>
+
+                    <Button style={{
+                        borderColor: "#004B8D"
+                    }} variant="contained" size="small" disabled onClick={() => deleteParticipant(props.id, user?.uid)} >No</Button>
+                </Box>
             </dd>}
 
         </div>

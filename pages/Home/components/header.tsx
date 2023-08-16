@@ -6,6 +6,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { Box, AppBar, Toolbar, styled, Stack, IconButton, Badge, Button } from '@mui/material';
 import Link from 'next/link'
 import { FaCalendarDay } from "react-icons/fa"
+import Image from 'next/image'
 
 const Header: NextPage = () => {
     const [user, setuser] = useAuthState(auth)
@@ -27,23 +28,23 @@ const Header: NextPage = () => {
         <div>
             <AppBarStyled position="sticky" color="default">
                 <ToolbarStyled>
-                    <div className="sm:text-4xl text-1xl font-bold " style={{
-                        color: "#004B8D"
-                    }} >
-                        Cognira
-                    </div>
+                    <Image src="/Cognira_Logo_Approved.jpg" width={220}
+                        height={48} alt="Cognira Logo" />
+
                     <Box flexGrow={1} />
                     <Stack spacing={3} direction="row" alignItems="center">
-                        <FaCalendarDay size={25} />
+                        <FaCalendarDay style={{
+                            color: "#505050 "
+                        }} size={25} />
                         <Link href="/Calendar" >
                             <button style={{
-                                backgroundColor: "#004B8D"
+                                backgroundColor: "#007ED3 "
                             }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
                                 Open Calendar
                             </button>
                         </Link>
                         <button style={{
-                            backgroundColor: "#004B8D"
+                            backgroundColor: "#007ED3 "
                         }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => {
                             auth.signOut()
                             document.cookie = "state=not connected";
@@ -51,10 +52,14 @@ const Header: NextPage = () => {
                         }
                         }>Sign Out
                         </button>
-                        <div className="sm:text-3xl text-1xl font-thin text-black ">
+                        <div style={{
+                            color: "#505050 "
+                        }} className="sm:text-3xl text-1xl font-bold ">
                             {user?.displayName}
                         </div>
-                        <img src={user?.photoURL!} width={50} height={50} alt="Avatar" />
+                        <img style={{
+                            borderRadius: "50%"
+                        }} src={user?.photoURL!} width={50} height={50} alt="Avatar" />
 
                     </Stack>
                 </ToolbarStyled>

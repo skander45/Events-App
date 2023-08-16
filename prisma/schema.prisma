@@ -19,6 +19,7 @@ model Event {
   location            String?
   description         String?
   budget              Int?
+  type                String?
   suggestions         Suggestion[]
   feedbacks           Feedback[]
   participants        Participant[]
@@ -51,4 +52,9 @@ model Feedback {
   Event         Event?    @relation(fields: [eventEventId], references: [eventId], onDelete: Cascade, onUpdate: Cascade)
   eventEventId  Int
   uid           String?
+}
+
+model Committee {
+  userid Int     @id @default(autoincrement())
+  uid    String?
 }

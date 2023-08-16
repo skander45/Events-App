@@ -3,14 +3,17 @@ import { CustomFormEditor } from './custom-form-editor';
 import { CustomDialog } from './custom-dialog';
 import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import moment from 'moment';
+Date.prototype.toJSON = function () { return moment(this).format(); }
 
 
 export const FormWithCustomEditor = (props: SchedulerFormProps) => {
+
     const [user, setuser] = useAuthState(auth)
-    const [formItem, setFormItem] = useState(null)
 
     const handleEventSave = async (event: any) => {
+        console.log(event.value)
         const formData1 = {
             title: event.value.title,
             location: event.value.location,
@@ -18,20 +21,20 @@ export const FormWithCustomEditor = (props: SchedulerFormProps) => {
             uidcreator: user?.uid,
             start_date_and_time: event.value.start_date_and_time || event.value.start,
             end_date_and_time: event.value.end_date_and_time || event.value.end,
-            budget: event.value.budget
+            type: event.value.type
         };
-        try {
-            const response = await fetch('/api/createEvent', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData1),
-            });
 
+        try {
+
+            const response =
+                await fetch('/api/createEvent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData1),
+                });
             if (response.ok) {
-                console.log(formData1)
-                console.log(event)
             } else {
                 console.error('Error adding data:', response.statusText);
             }
@@ -48,8 +51,6 @@ export const FormWithCustomEditor = (props: SchedulerFormProps) => {
             editor={CustomFormEditor}
             dialog={CustomDialog}
             onSubmit={handleEventSave}
-
-
         />
     );
 };

@@ -1,4 +1,14 @@
 import { useEffect, useState } from "react"
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import SendIcon from '@mui/icons-material/Send';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs from 'dayjs';
+import Textarea from '@mui/joy/Textarea';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 interface Event {
     eventId: number;
@@ -9,6 +19,7 @@ interface Event {
     start_date_and_time: string
     location: string
     uidcreator: string
+    type: string
 }
 export const UpdateEvent = (props: any) => {
     const [event, setEvent] = useState<Event>({
@@ -20,6 +31,7 @@ export const UpdateEvent = (props: any) => {
         location: "",
         uidcreator: "",
         budget: 0,
+        type: "",
     })
     useEffect(() => {
         fetch(`/api/getEvent/${props.id}`, {
@@ -28,9 +40,11 @@ export const UpdateEvent = (props: any) => {
                 'Content-Type': 'application/json',
             },
         }).then(response => response.json()).then(data => {
-            setEvent(data)
+            setEvent(JSON.parse(JSON.stringify(data)))
         })
+
     }, [])
+
     function handleChangeUpdateEvent(e: any) {
         setEvent({ ...event, [e.target.name]: e.target.value })
     }
@@ -70,54 +84,105 @@ export const UpdateEvent = (props: any) => {
             console.error('Error:', error);
         }
     }
-
     return (
         <div>
             <form onSubmit={(e) => handleSubmitUpdateEvent(e, props.id)} className="p-4">
 
-                <div className="px-7 sm:px-0">
-                    <input onChange={handleChangeUpdateEvent} name="title" className="text-base font-semibold leading-4 text-gray-900" value={event.title} />
+                <div>
+                    <Textarea
+                        sx={{ mr: 50 }}
+
+                        disabled={false}
+                        minRows={1}
+                        placeholder="Write a Title"
+                        size="md"
+                        variant="outlined"
+                        name="title"
+                        onChange={handleChangeUpdateEvent}
+                        value={event.title}
+
+                    />
                 </div>
-                <div className="mt-6 border-t border-gray-100">
-                    <dl className="divide-y divide-gray-100">
+                <div className="mt-6 border-t border-white-100">
+                    <dl className="divide-y divide-white-100">
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="text-sm font-medium leading-6 text-gray-900">Start Date and Time </dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                <input name="start_date_and_time" onChange={handleChangeUpdateEvent} type="datetime-local" value={event.start_date_and_time.slice(0, 16)} />
+                            <dt className="font-small leading-6 text-gray-900">Start Date and Time </dt>
+                            <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker onChange={(e) => {
+                                        setEvent({ ...event, ["start_date_and_time"]: e?.format() || "" })
+                                    }} value={dayjs(event.start_date_and_time.slice(0, 19) + "+00:00")} label="start_date_and_time" />
+                                </LocalizationProvider>
                             </dd>
                         </div>
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="text-sm font-medium leading-6 text-gray-900">End Date and Time</dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                <input name="end_date_and_time" onChange={handleChangeUpdateEvent} type="datetime-local" value={event.end_date_and_time.slice(0, 16)} />
+                            <dt className="font-small leading-6 text-gray-900">End Date and Time</dt>
+                            <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker
+                                        onChange={(e) => {
+                                            setEvent({ ...event, ["end_date_and_time"]: e?.format() || "" })
+                                        }} value={dayjs(event.end_date_and_time.slice(0, 19) + "+00:00")} label="end_date_and_time" />
+                                </LocalizationProvider>
                             </dd>
                         </div>
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                <input name='location' onChange={handleChangeUpdateEvent} type="text" value={event.location} />
+                            <dt className="font-small leading-6 text-gray-900">Location</dt>
+                            <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                <Textarea
+                                    disabled={false}
+                                    minRows={1}
+                                    placeholder="Write a Location"
+                                    size="md"
+                                    variant="outlined"
+                                    name="location"
+                                    onChange={handleChangeUpdateEvent}
+                                    value={event.location}
+                                />
                             </dd>
                         </div>
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="text-sm font-medium leading-6 text-gray-900">Budget</dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                $<input name='budget' onChange={handleChangeUpdateEvent} type="number" value={event.budget} />
+                            <dt className="font-small leading-6 text-gray-900">Type</dt>
+                            <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                <Select name="type" onChange={handleChangeUpdateEvent} value={event.type} >
+                                    <MenuItem value={"summer event"}>Summer Event</MenuItem>
+                                    <MenuItem value={"winter event"}>Winter Event</MenuItem>
+                                    <MenuItem value={"sign off celebration"}>Sign off Celebration</MenuItem>
+                                    <MenuItem value={"other"}>Other</MenuItem>
+                                </Select>
                             </dd>
                         </div>
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="text-sm font-medium leading-6 text-gray-900">Description</dt>
-                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                <input name='description' onChange={handleChangeUpdateEvent} type="text" value={event.description} />
+                            <dt className="font-small leading-6 text-gray-900">Description</dt>
+                            <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                <Textarea
+                                    disabled={false}
+                                    minRows={3}
+                                    placeholder="Write a description"
+                                    size="md"
+                                    variant="outlined"
+                                    name="description"
+                                    onChange={handleChangeUpdateEvent}
+                                    value={event.description}
+                                />
                             </dd>
                         </div>
+
                     </dl>
                 </div>
-                <button type='submit'>Submit</button>
-            </form>
-            <button onClick={() => handleDelete(event.eventId)} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
-                Delete
-            </button>
+                <Box sx={{
+                    '& button': { ml: 19 },
+                    mt: 1
+                }}>
+                    <Button style={{
+                        borderColor: "#004B8D",
+                    }} size="medium" variant="contained" endIcon={<SendIcon />} type='submit'>Submit</Button>
 
+                    <Button size="medium" variant="contained" color="error" onClick={() => handleDelete(event.eventId)} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-small rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                        Delete
+                    </Button>
+                </Box>
+            </form>
         </div>
     )
 }

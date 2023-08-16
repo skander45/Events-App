@@ -14,6 +14,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { Container } from "@mui/material";
 import Alert from '@mui/material/Alert';
+import Image from 'next/image'
 
 
 function getCookie(cName: any) {
@@ -49,6 +50,17 @@ const Home: NextPage = () => {
     }
     if (user) {
       if (user?.email?.slice(-11) == "cognira.com") {
+        fetch(`/api/getCommittee/${user?.uid}`, {
+          method: 'GET',
+          headers: {
+            'content-Type': 'application/json',
+          },
+        }).then(response => response.json()).then(
+          data => {
+            if (data) { document.cookie = "socialCommittee=true"; }
+            else { document.cookie = "socialCommittee=false"; }
+          }
+        )
         document.cookie = "state=connected";
         router.push('/Home');
       }
@@ -69,12 +81,10 @@ const Home: NextPage = () => {
           <meta name="description" content="Create Events for Cognira" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-
-
         <Container component="main" fixed >
           <Box
             sx={{
-              marginTop: 23,
+              marginTop: 25,
             }}
           >
             <Grid container>
@@ -86,23 +96,23 @@ const Home: NextPage = () => {
                 md={7}
                 sx={{
 
-                  backgroundColor: "#0080C9",
+                  backgroundColor: "#1F7FD3",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               >
                 <Box
                   sx={{
-                    my: 25,
+                    mt: 17,
+                    mb: 21,
                     mx: 4,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                   }}
                 >
-                  <Typography color={"white"} component="h2" variant="h1" fontSize={120}>
-                    Cognira
-                  </Typography>
+                  <Image src="/1672833004143.jfif" width={200}
+                    height={200} alt="Cognira" />
                   <Typography color={"white"} component="h5" variant="h4" >
                     Events Management Platform
                   </Typography></Box>

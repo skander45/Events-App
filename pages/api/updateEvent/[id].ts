@@ -6,12 +6,11 @@ import { prisma } from '../../../lib/prisma';
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    req.body.budget = parseInt(req.body.budget)
     req.body.start_date_and_time = new Date(req.body.start_date_and_time)
     req.body.end_date_and_time = new Date(req.body.end_date_and_time)
     const eventid = req.query.id
 
-    const { title, location, description, start_date_and_time, end_date_and_time, budget } = req.body;
+    const { title, location, description, start_date_and_time, end_date_and_time, type } = req.body;
 
     try {
         await prisma.event.update({
@@ -22,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 description,
                 start_date_and_time,
                 end_date_and_time,
-                budget,
+                type,
             },
 
         });

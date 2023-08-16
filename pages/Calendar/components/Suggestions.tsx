@@ -17,7 +17,8 @@ export const Suggestions = (props: any) => {
         }).then(response => response.json()).then(data => {
             setSuggestions(JSON.parse(JSON.stringify(data.sort((a: any, b: any) => b.suggestionId - a.suggestionId))))
         })
-    })
+    }, [])
+    //websocket
     async function handleDelete(id: any) {
         try {
             const response = await fetch(`/api/deleteSuggestion/${id}`, {
@@ -37,7 +38,7 @@ export const Suggestions = (props: any) => {
     }
     return (
         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Suggestions</dt>
+            <dt className="font-small leading-6 text-gray-900">Suggestions</dt>
             <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                 {suggestions.map((value: any) => {
                     return (

@@ -13,6 +13,26 @@ import { Participants } from './Participants';
 import { AddParticipant } from './AddParticipant';
 import { UpdateEvent } from './UpdateEvent';
 import { Feedbacks } from './Feedbacks';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import SendIcon from '@mui/icons-material/Send';
+import Textarea from '@mui/joy/Textarea';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import IconButton from '@mui/joy/IconButton';
+import Menu from '@mui/joy/Menu';
+import MenuItem from '@mui/joy/MenuItem';
+import ListItemDecorator from '@mui/joy/ListItemDecorator';
+import FormatBold from '@mui/icons-material/FormatBold';
+import FormatItalic from '@mui/icons-material/FormatItalic';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import Check from '@mui/icons-material/Check';
+import dayjs, { Dayjs } from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimeField } from '@mui/x-date-pickers/DateTimeField';
+
 
 export const CustomItem = (props: SchedulerItemProps) => {
     const ref = React.useRef<SchedulerItemHandle>(null);
@@ -35,7 +55,6 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
     const handleSubmitFeedback = async (e: any, id: any) => {
         e.preventDefault();
-        console.log(e)
         const formData1 = {
             eventEventId: id,
             name: user?.displayName,
@@ -89,19 +108,30 @@ export const CustomItem = (props: SchedulerItemProps) => {
             console.error('Error:', error);
         }
     }
+    const [italic, setItalic] = React.useState(false);
+    const [fontWeight, setFontWeight] = React.useState('normal');
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     return (
         <React.Fragment>
             <SchedulerItem
                 {...props}
-                style={{
-                    ...props.style,
-                    background: '#0080C9',
-                }}
+                style={
+
+                    {
+                        ...props.style,
+                        background: (props.dataItem.type == "summer event") ? '#0080C9' :
+                            (props.dataItem.type == "winter event") ? '#FFA600' :
+                                (props.dataItem.type == "sign off celebration") ? '#007B86' :
+                                    "#004B8D",
+                    }
+
+                }
 
                 onClick={() => {
 
                     if (showEdit) { setShowEdit(!showEdit) }
                     else { setShow(!show) }
+                    console.log(props.dataItem)
                     //setShowEdit(!showEdit)
                 }}
                 ref={ref}
@@ -113,33 +143,52 @@ export const CustomItem = (props: SchedulerItemProps) => {
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div className="rounded" style={{ width: 650, height: 290, fontSize: 19, overflow: "auto" }}>
+                <div style={{ width: 650, height: 290, fontSize: 16, overflow: "auto", backgroundColor: "#F2F2F2" }}>
                     <div className="p-4">
                         <div>
                             <div className="px-7 sm:px-0">
-                                <h2 className="text-base font-semibold leading-4 text-gray-900">{props.dataItem.title}</h2>
+                                <h1 className="text-xlg font-bold leading-8 text-gray-900">{props.dataItem.title}</h1>
                             </div>
-                            <div className="mt-6 border-t border-gray-100">
-                                <dl className="divide-y divide-gray-100">
+                            <div className="mt-1 border-t border-white-100">
+                                <dl className="divide-y divide-white-100">
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">Start Date and Time </dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{String(props.dataItem.start)}</dd>
+                                        <dt className=" font-small leading-6 text-gray-900">Start Date and Time </dt>
+
+                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimeField
+                                                    value={dayjs(props.dataItem.start)}
+                                                    format="LLLL"
+                                                    readOnly={true}
+                                                    fullWidth={true}
+                                                />
+                                            </LocalizationProvider>
+                                        </dd>
                                     </div>
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">End Date and Time</dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{String(props.dataItem.end)}</dd>
+                                        <dt className=" font-small leading-6 text-gray-900">End Date and Time</dt>
+                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimeField
+                                                    value={dayjs(props.dataItem.end)}
+                                                    format="LLLL"
+                                                    readOnly={true}
+                                                    fullWidth={true}
+                                                />
+                                            </LocalizationProvider>
+                                        </dd>
                                     </div>
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{props.dataItem.location}</dd>
+                                        <dt className=" font-small leading-6 text-gray-900">Location</dt>
+                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{props.dataItem.location}</dd>
                                     </div>
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">Budget</dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">${props.dataItem.budget}</dd>
+                                        <dt className=" font-small leading-6 text-gray-900">Type</dt>
+                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{props.dataItem.type}</dd>
                                     </div>
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                        <dt className="text-sm font-medium leading-6 text-gray-900">Description</dt>
-                                        <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                        <dt className=" font-small leading-6 text-gray-900">Description</dt>
+                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                             {props.dataItem.description}
                                         </dd>
                                     </div>
@@ -147,38 +196,172 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                     <Participants id={props.dataItem.id} />
                                     {now < props.dataItem.end && <>
                                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Add suggestion</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <dt className=" font-small leading-6 text-gray-900">Add suggestion</dt>
+                                            <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                                 <form onSubmit={(e) => {
                                                     handleSubmit(e, props.dataItem.id);
 
                                                 }}>
-                                                    <input
-                                                        type="text"
-                                                        value={inputValue}
-                                                        onChange={handleChange}
-                                                        placeholder="Enter a suggestion"
-                                                    />
-                                                    <button type="submit">Send suggestion</button>
+                                                    <FormControl>
+                                                        <Textarea
+                                                            onChange={handleChange}
+                                                            value={inputValue}
+                                                            placeholder="Type something here…"
+                                                            minRows={3}
+                                                            endDecorator={
+                                                                <Box
+                                                                    sx={{
+                                                                        display: 'flex',
+                                                                        gap: 'var(--Textarea-paddingBlock)',
+                                                                        pt: 'var(--Textarea-paddingBlock)',
+                                                                        borderTop: '1px solid',
+                                                                        borderColor: 'divider',
+                                                                        flex: 'auto',
+                                                                    }}
+                                                                >
+                                                                    <IconButton
+                                                                        variant="plain"
+                                                                        color="neutral"
+                                                                        onClick={(event) => setAnchorEl(event.currentTarget)}
+                                                                    >
+                                                                        <FormatBold />
+                                                                        <KeyboardArrowDown />
+                                                                    </IconButton>
+                                                                    <Menu
+                                                                        anchorEl={anchorEl}
+                                                                        open={Boolean(anchorEl)}
+                                                                        onClose={() => setAnchorEl(null)}
+                                                                        size="sm"
+                                                                        placement="bottom-start"
+                                                                        sx={{ '--ListItemDecorator-size': '24px' }}
+                                                                    >
+                                                                        {['200', 'normal', 'bold'].map((weight) => (
+                                                                            <MenuItem
+                                                                                key={weight}
+                                                                                selected={fontWeight === weight}
+                                                                                onClick={() => {
+                                                                                    setFontWeight(weight);
+                                                                                    setAnchorEl(null);
+                                                                                }}
+                                                                                sx={{ fontWeight: weight }}
+                                                                            >
+                                                                                <ListItemDecorator>
+                                                                                    {fontWeight === weight && <Check />}
+                                                                                </ListItemDecorator>
+                                                                                {weight === '200' ? 'lighter' : weight}
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </Menu>
+                                                                    <IconButton
+                                                                        variant={italic ? 'soft' : 'plain'}
+                                                                        color={italic ? 'primary' : 'neutral'}
+                                                                        aria-pressed={italic}
+                                                                        onClick={() => setItalic((bool) => !bool)}
+                                                                    >
+                                                                        <FormatItalic />
+                                                                    </IconButton>
+                                                                    <Button style={{
+
+                                                                        borderColor: "#004B8D"
+                                                                    }} variant="contained" size="small"
+                                                                        sx={{ ml: 'auto' }} type="submit">Send</Button>
+
+                                                                </Box>
+                                                            }
+                                                            sx={{
+                                                                minWidth: 300,
+                                                                fontWeight,
+                                                                fontStyle: italic ? 'italic' : 'initial',
+                                                            }}
+                                                        />
+                                                    </FormControl>
+
                                                 </form>
                                             </dd>
                                         </div>
                                         <Suggestions id={props.dataItem.id} /> </>}
                                     {now > props.dataItem.end && <>
                                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Add feedback</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <dt className=" font-small leading-6 text-gray-900">Add feedback</dt>
+                                            <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                                 <form onSubmit={(e) => {
                                                     handleSubmitFeedback(e, props.dataItem.id);
 
                                                 }}>
-                                                    <input
-                                                        type="text"
-                                                        value={inputValueFeedback}
-                                                        onChange={handleChangeFeedback}
-                                                        placeholder="Enter a feedback"
-                                                    />
-                                                    <button type="submit">Send feedback</button>
+                                                    <FormControl>
+                                                        <Textarea
+                                                            value={inputValueFeedback}
+                                                            onChange={handleChangeFeedback}
+                                                            placeholder="Enter a feedback"
+                                                            minRows={3}
+                                                            endDecorator={
+                                                                <Box
+                                                                    sx={{
+                                                                        display: 'flex',
+                                                                        gap: 'var(--Textarea-paddingBlock)',
+                                                                        pt: 'var(--Textarea-paddingBlock)',
+                                                                        borderTop: '1px solid',
+                                                                        borderColor: 'divider',
+                                                                        flex: 'auto',
+                                                                    }}
+                                                                >
+                                                                    <IconButton
+                                                                        variant="plain"
+                                                                        color="neutral"
+                                                                        onClick={(event) => setAnchorEl(event.currentTarget)}
+                                                                    >
+                                                                        <FormatBold />
+                                                                        <KeyboardArrowDown />
+                                                                    </IconButton>
+                                                                    <Menu
+                                                                        anchorEl={anchorEl}
+                                                                        open={Boolean(anchorEl)}
+                                                                        onClose={() => setAnchorEl(null)}
+                                                                        size="sm"
+                                                                        placement="bottom-start"
+                                                                        sx={{ '--ListItemDecorator-size': '24px' }}
+                                                                    >
+                                                                        {['200', 'normal', 'bold'].map((weight) => (
+                                                                            <MenuItem
+                                                                                key={weight}
+                                                                                selected={fontWeight === weight}
+                                                                                onClick={() => {
+                                                                                    setFontWeight(weight);
+                                                                                    setAnchorEl(null);
+                                                                                }}
+                                                                                sx={{ fontWeight: weight }}
+                                                                            >
+                                                                                <ListItemDecorator>
+                                                                                    {fontWeight === weight && <Check />}
+                                                                                </ListItemDecorator>
+                                                                                {weight === '200' ? 'lighter' : weight}
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </Menu>
+                                                                    <IconButton
+                                                                        variant={italic ? 'soft' : 'plain'}
+                                                                        color={italic ? 'primary' : 'neutral'}
+                                                                        aria-pressed={italic}
+                                                                        onClick={() => setItalic((bool) => !bool)}
+                                                                    >
+                                                                        <FormatItalic />
+                                                                    </IconButton>
+                                                                    <Button style={{
+
+                                                                        borderColor: "#004B8D"
+                                                                    }} variant="contained" size="small"
+                                                                        sx={{ ml: 'auto' }} type="submit">Send</Button>
+
+                                                                </Box>
+                                                            }
+                                                            sx={{
+                                                                minWidth: 300,
+                                                                fontWeight,
+                                                                fontStyle: italic ? 'italic' : 'initial',
+                                                            }}
+                                                        />
+                                                    </FormControl>
+
                                                 </form>
                                             </dd>
                                         </div>
@@ -190,14 +373,25 @@ export const CustomItem = (props: SchedulerItemProps) => {
                     </div>
 
                 </div>
-                {user?.uid == props.dataItem.uidcreator && <>
-                    <button onClick={() => {
-                        setShow(!show)
-                        setShowEdit(!showEdit)
-                    }}>Edit</button>
-                </>}
-                <button onClick={() => setShow(!show)}>Close PopUp</button>
-            </Popup>
+                <Box sx={{ '& button': { ml: 20 } }}>
+
+                    {user?.uid == props.dataItem.uidcreator && <>
+                        <Button variant="outlined" size="small" style={{
+                            color: "#004B8D",
+                            borderColor: "#004B8D"
+                        }} onClick={() => {
+                            setShow(!show)
+                            setShowEdit(!showEdit)
+                        }}>Edit</Button>
+                    </>}
+                    <Button onClick={() => setShow(!show)} variant="outlined" size="small" style={{
+                        color: "#6C757D",
+                        borderColor: "#6C757D"
+                    }}>
+                        Close PopUp
+                    </Button>
+                </Box>
+            </Popup >
 
             <Popup
                 show={showEdit}
@@ -205,11 +399,17 @@ export const CustomItem = (props: SchedulerItemProps) => {
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div className="rounded" style={{ overflow: "auto", width: 650, height: 320, fontSize: 19, backgroundColor: "#F2F2F2" }}>
+                <div style={{ overflow: "auto", width: 650, height: 320, fontSize: 16, backgroundColor: "#F2F2F2" }}>
                     <UpdateEvent id={props.dataItem.id} />
                 </div>
-                <button onClick={() => setShowEdit(!showEdit)}>Close</button>
+                <div style={{ marginLeft: 305 }}>
+                    <Button onClick={() => setShowEdit(!showEdit)} variant="outlined" size="small" style={{
+                        color: "#6C757D",
+                        borderColor: "#6C757D"
+                    }}>
+                        Close
+                    </Button></div>
             </Popup>
-        </React.Fragment>
+        </React.Fragment >
     )
 };

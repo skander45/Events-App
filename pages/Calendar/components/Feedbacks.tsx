@@ -18,7 +18,7 @@ export const Feedbacks = (props: any) => {
         }).then(response => response.json()).then(data => {
             setFeedback(JSON.parse(JSON.stringify(data.sort((a: any, b: any) => b.feedbackId - a.feedbackId))))
         })
-    })
+    }, [])
     async function handleDelete(id: any) {
         try {
             const response = await fetch(`/api/deleteFeedback/${id}`, {
