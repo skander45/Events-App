@@ -30,6 +30,8 @@ const Home: NextPage = () => {
     const [user, setuser] = useAuthState(auth)
     const router = useRouter();
     const [state, setState] = useState(false);
+
+
     useEffect(() => {
         if (getCookie("state") == "not connected") {
             router.push('/');
@@ -40,9 +42,9 @@ const Home: NextPage = () => {
 
         }
 
-    })
 
-    console.log(user)
+    }, [])
+
     return (
         <div>
             {state && <>

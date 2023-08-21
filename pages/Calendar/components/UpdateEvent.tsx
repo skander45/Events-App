@@ -9,6 +9,14 @@ import dayjs from 'dayjs';
 import Textarea from '@mui/joy/Textarea';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Alert from '@mui/joy/Alert';
+import AspectRatio from '@mui/joy/AspectRatio';
+import Close from '@mui/icons-material/Close';
+import Typography from '@mui/joy/Typography';
+import Dialog from '@mui/material/Dialog';
+import Check from '@mui/icons-material/Check';
+import IconButton from '@mui/joy/IconButton';
+
 
 interface Event {
     eventId: number;
@@ -22,6 +30,8 @@ interface Event {
     type: string
 }
 export const UpdateEvent = (props: any) => {
+    const [alertstate, setAlertstate] = useState(false)
+
     const [event, setEvent] = useState<Event>({
         eventId: 0,
         title: "",
@@ -60,6 +70,7 @@ export const UpdateEvent = (props: any) => {
             });
             if (response.ok) {
                 console.log(event)
+                setAlertstate(true)
             } else {
                 console.error('Error adding data:', response.statusText);
             }
@@ -183,6 +194,52 @@ export const UpdateEvent = (props: any) => {
                     </Button>
                 </Box>
             </form>
+            <Dialog open={alertstate} style={{
+            }}>
+                <Alert
+                    size="lg"
+
+                    color="success"
+                    variant="solid"
+                    invertedColors
+                    startDecorator={
+                        <AspectRatio
+                            variant="solid"
+                            ratio="1"
+                            sx={{
+                                minWidth: 40,
+                                borderRadius: '50%',
+                                boxShadow: '0 2px 12px 0 rgb(0 0 0/0.2)',
+                            }}
+                        >
+                            <div>
+                                <Check />
+                            </div>
+                        </AspectRatio>
+                    }
+                    endDecorator={
+                        <IconButton
+                            variant="plain"
+                            sx={{
+                                '--IconButton-size': '32px',
+                                transform: 'translate(0.5rem, -0.5rem)',
+                            }}
+                            onClick={() => setAlertstate(false)}
+                        >
+                            <Close />
+                        </IconButton>
+                    }
+                    sx={{ alignItems: 'flex-start', overflow: 'hidden', borderRadius: 0 }}
+                >
+                    <div>
+                        <Typography level="title-lg">Event updated successfully</Typography>
+                        <Typography level="body-sm">
+                            {event.title} from {String(new Date(event.start_date_and_time)).slice(0, 24)} to {String(new Date(event.end_date_and_time)).slice(0, 24)}
+                        </Typography>
+                    </div>
+
+                </Alert>
+            </Dialog>
         </div>
     )
 }

@@ -5,11 +5,19 @@ import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
 import React, { useEffect } from 'react';
 import moment from 'moment';
-Date.prototype.toJSON = function () { return moment(this).format(); }
+import { useState } from 'react'
 
+Date.prototype.toJSON = function () { return moment(this).format(); }
+/* import io from "socket.io-client"
+let socket: any */
 
 export const FormWithCustomEditor = (props: SchedulerFormProps) => {
-
+    /* const [username, setUsername] = useState("")
+    const [message, setMessage] = useState("")
+    const [allMessages, setAllMessages] = useState({
+        username: "hello",
+        message: "hello"
+    }) */
     const [user, setuser] = useAuthState(auth)
 
     const handleEventSave = async (event: any) => {
@@ -23,7 +31,10 @@ export const FormWithCustomEditor = (props: SchedulerFormProps) => {
             end_date_and_time: event.value.end_date_and_time || event.value.end,
             type: event.value.type
         };
-
+        /* socket.emit("send-message", {
+            username,
+            message
+        }) */
         try {
 
             const response =
@@ -45,7 +56,28 @@ export const FormWithCustomEditor = (props: SchedulerFormProps) => {
         event.target.props.onClose()
     };
 
+    /* useEffect(() => {
+
+        fetch("/api/socket", {
+            method: 'GET',
+        })
+        socket = io()
+        socket.on('connect', () => {
+            console.log('connected')
+        })
+        socket.on("receive-message", (data: any) => {
+            console.log(data);
+            setAllMessages(data)
+        })
+        socket.emit("send-message", {
+            username,
+            message
+        })
+        console.log("test")
+
+    }, []) */
     return (
+
         <SchedulerForm
             {...props}
             editor={CustomFormEditor}

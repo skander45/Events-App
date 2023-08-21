@@ -29,6 +29,7 @@ const Header: NextPage = () => {
         width: '100%',
         color: theme.palette.text.secondary,
     }));
+
     return (
         <div>
             <AppBarStyled position="sticky" color="default">

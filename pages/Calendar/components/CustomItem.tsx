@@ -32,8 +32,38 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimeField } from '@mui/x-date-pickers/DateTimeField';
+import { createSvgIcon } from '@mui/material/utils';
+import Alert from '@mui/joy/Alert';
+import AspectRatio from '@mui/joy/AspectRatio';
+import Close from '@mui/icons-material/Close';
+import Typography from '@mui/joy/Typography';
+import Dialog from '@mui/material/Dialog';
 
 
+
+const PlusIcon = createSvgIcon(
+    // credit: plus icon from https://heroicons.com/
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+    >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>,
+    'Plus',
+);
+function getCookie(cName: any) {
+    const name = cName + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const cArr = cDecoded.split('; ');
+    let res;
+    cArr.forEach(val => {
+        if (val.indexOf(name) === 0) res = val.substring(name.length);
+    })
+    return res;
+}
 export const CustomItem = (props: SchedulerItemProps) => {
     const ref = React.useRef<SchedulerItemHandle>(null);
     const [show, setShow] = React.useState(false);
@@ -111,6 +141,25 @@ export const CustomItem = (props: SchedulerItemProps) => {
     const [italic, setItalic] = React.useState(false);
     const [fontWeight, setFontWeight] = React.useState('normal');
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [alertstate, setAlertstate] = useState(false)
+    async function addEvent(event: any) {
+        const formData1 = {
+            title: event.title,
+            description: event.description,
+            start_date_and_time: event.start,
+            end_date_and_time: event.end,
+        }; const response = await fetch(`/api/add-event/${getCookie("accessToken")}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData1),
+        }).then(response => response.json()).then(data => {
+            setAlertstate(data)
+        })
+    }
+
+
     return (
         <React.Fragment>
             <SchedulerItem
@@ -369,6 +418,55 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                     </>}
                                 </dl>
                             </div>
+                            <Button style={{
+                                marginLeft: 175
+                            }} variant="outlined" startIcon={<PlusIcon />} onClick={() => { addEvent(props.dataItem) }}>Add to Google Calendar</Button>
+                            <Dialog open={alertstate} style={{
+                            }}>
+                                <Alert
+                                    size="lg"
+
+                                    color="success"
+                                    variant="solid"
+                                    invertedColors
+                                    startDecorator={
+                                        <AspectRatio
+                                            variant="solid"
+                                            ratio="1"
+                                            sx={{
+                                                minWidth: 40,
+                                                borderRadius: '50%',
+                                                boxShadow: '0 2px 12px 0 rgb(0 0 0/0.2)',
+                                            }}
+                                        >
+                                            <div>
+                                                <Check />
+                                            </div>
+                                        </AspectRatio>
+                                    }
+                                    endDecorator={
+                                        <IconButton
+                                            variant="plain"
+                                            sx={{
+                                                '--IconButton-size': '32px',
+                                                transform: 'translate(0.5rem, -0.5rem)',
+                                            }}
+                                            onClick={() => setAlertstate(false)}
+                                        >
+                                            <Close />
+                                        </IconButton>
+                                    }
+                                    sx={{ alignItems: 'flex-start', overflow: 'hidden', borderRadius: 0 }}
+                                >
+                                    <div>
+                                        <Typography level="title-lg">Event added to your Google Calendar successfully</Typography>
+                                        <Typography level="body-sm">
+                                            {props.dataItem.title} from {String(props.dataItem.start).slice(0, 24)} to {String(props.dataItem.end).slice(0, 24)}
+                                        </Typography>
+                                    </div>
+
+                                </Alert>
+                            </Dialog>
                         </div>
                     </div>
 

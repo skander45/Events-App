@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { auth } from "./firebase"
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { signInWithPopup, GoogleAuthProvider, signInWithCredential, getAuth, signInWithCustomToken } from 'firebase/auth'
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
@@ -17,11 +17,13 @@ import Alert from '@mui/material/Alert';
 import Image from 'next/image'
 
 
-function getCookie(cName: any) {
+
+let res: string
+function getCookie(cName: any): string {
   const name = cName + "=";
   const cDecoded = decodeURIComponent(document.cookie); //to be careful
   const cArr = cDecoded.split('; ');
-  let res;
+
   cArr.forEach(val => {
     if (val.indexOf(name) === 0) res = val.substring(name.length);
   })
@@ -30,12 +32,100 @@ function getCookie(cName: any) {
 
 const Home: NextPage = () => {
   const router = useRouter();
-
   const [user, setuser] = useAuthState(auth)
-  const googleAuth = new GoogleAuthProvider();
+  //const googleAuth = new GoogleAuthProvider();
+  const getAccessTokenFromCode = async (authorizationCode: string): Promise<string> => {
+    try {
+      const response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          code: authorizationCode,
+          client_id: '580148951927-i3g87eou35sek8gr0qan9h3vc4vd3369.apps.googleusercontent.com',
+          client_secret: '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',
+          redirect_uri: 'http://localhost:3000/Popup',
+          grant_type: 'authorization_code',
+        }).toString(),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        const credential = GoogleAuthProvider.credential(data.id_token);
+        const result = await signInWithCredential(auth, credential)
+        document.cookie = "state=connected"
+        return data.access_token;
+
+      } else {
+        throw new Error(`Failed to exchange authorization code: ${data.error}`);
+      }
+    } catch (error) {
+      throw new Error('Error exchanging authorization code');
+    }
+  }
+  const handleConnectGoogleCalendar = async (authorizationCode: any) => {
+    try {
+      const data = await getAccessTokenFromCode(authorizationCode);
+      document.cookie = `accessToken=${data}`
+      if (data) {
+        console.log('Connected to Google Calendar API successfully');
+      } else {
+        console.error('Error connecting to Google Calendar');
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
   const login = async () => {
-    setShowAlert(false)
-    const result = await signInWithPopup(auth, googleAuth)
+    const initiateOAuthFlow = async () => {
+      //const result = await signInWithPopup(auth, googleAuth)
+      var left = (screen.width);
+      var top = (screen.height);
+      const oauthPopup = window.open(
+        'https://accounts.google.com/o/oauth2/auth' +
+        '?client_id=580148951927-i3g87eou35sek8gr0qan9h3vc4vd3369.apps.googleusercontent.com' +
+        '&redirect_uri=http://localhost:3000/Popup' +
+        '&response_type=code' +
+        '&scope=https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile',
+        'Google OAuth',
+        'width=600,height=600,top = '
+        + top / 5 + ',left=' + left / 3
+      );
+      //console.log("oauthPopup", oauthPopup)
+
+
+
+
+      return new Promise<string>((resolve, reject) => {
+
+
+        const checkPopupClosed = setInterval(() => {
+          if (oauthPopup?.closed) {
+            clearInterval(checkPopupClosed);
+            const urlSearchParams = new URLSearchParams(oauthPopup?.location?.search);
+            const authorizationCode = urlSearchParams.get('code');
+            if (authorizationCode) {
+              resolve(authorizationCode);
+              handleConnectGoogleCalendar(authorizationCode)
+              //              router.push('/Home');
+
+            } else {
+              reject(new Error('Authorization code not found'));
+            }
+          }
+        }, 1000);
+      });
+    };
+
+
+    try {
+      const authorizationCode = await initiateOAuthFlow();
+
+    } catch (error) {
+      console.error('Error initiating OAuth flow:', error);
+    }
+
 
   }
   const [state, setState] = useState(false);
@@ -49,29 +139,20 @@ const Home: NextPage = () => {
 
     }
     if (user) {
-      if (user?.email?.slice(-11) == "cognira.com") {
-        fetch(`/api/getCommittee/${user?.uid}`, {
-          method: 'GET',
-          headers: {
-            'content-Type': 'application/json',
-          },
-        }).then(response => response.json()).then(
-          data => {
-            if (data) { document.cookie = "socialCommittee=true"; }
-            else { document.cookie = "socialCommittee=false"; }
-          }
-        )
-        document.cookie = "state=connected";
-        router.push('/Home');
-      }
-      else {
-        setShowAlert(true)
-        auth.signOut()
-      }
+      fetch(`/api/getCommittee/${user?.uid}`, {
+        method: 'GET',
+        headers: {
+          'content-Type': 'application/json',
+        },
+      }).then(response => response.json()).then(
+        data => {
+          if (data) { document.cookie = "socialCommittee=true"; }
+          else { document.cookie = "socialCommittee=false"; }
+        }
+      )
+      document.cookie = "state=connected";
     }
   })
-
-  const [showAlert, setShowAlert] = React.useState(false);
 
   return (
     <>
@@ -111,7 +192,7 @@ const Home: NextPage = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Image src="/1672833004143.jfif" width={200}
+                  <Image priority src="/1672833004143.jfif" width={200}
                     height={200} alt="Cognira" />
                   <Typography color={"white"} component="h5" variant="h4" >
                     Events Management Platform
@@ -157,10 +238,6 @@ const Home: NextPage = () => {
 
 
                   </Box>
-                  {showAlert ? (
-                    <Alert onClose={() => setShowAlert(false)} severity="error">You have to connect with a Cognira Gmail account
-                    </Alert>
-                  ) : null}
                 </Box>
 
               </Grid>
