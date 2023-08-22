@@ -2,7 +2,7 @@ import {
     SchedulerItem,
     SchedulerItemProps, SchedulerItemHandle
 } from '@progress/kendo-react-scheduler';
-import React from 'react';
+import React, { useEffect } from 'react';
 import '@progress/kendo-theme-default/dist/all.css';
 import { useState } from 'react'
 import { Offset, Popup } from "@progress/kendo-react-popup";
@@ -38,7 +38,8 @@ import AspectRatio from '@mui/joy/AspectRatio';
 import Close from '@mui/icons-material/Close';
 import Typography from '@mui/joy/Typography';
 import Dialog from '@mui/material/Dialog';
-
+import io from "socket.io-client"
+let socket: any;
 
 
 const PlusIcon = createSvgIcon(
@@ -65,6 +66,22 @@ function getCookie(cName: any) {
     return res;
 }
 export const CustomItem = (props: SchedulerItemProps) => {
+
+    const [message, setMessage] = useState("update")
+    const [allMessages, setAllMessages] = useState<any[]>([])
+
+    useEffect(() => {
+        socketInitializer()
+    }, [])
+
+    async function socketInitializer() {
+        await fetch("/api/socket");
+        socket = io()
+        socket.on("receive-message", (data: any) => {
+            console.log(data)
+            setAllMessages(data)
+        })
+    }
     const ref = React.useRef<SchedulerItemHandle>(null);
     const [show, setShow] = React.useState(false);
     const [showEdit, setShowEdit] = React.useState(false);
@@ -103,6 +120,10 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
             if (response.ok) {
                 console.log(formData1)
+                socket.emit("send-message", {
+
+                    message
+                })
             } else {
                 console.error('Error adding data:', response.statusText);
             }
@@ -131,12 +152,18 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
             if (response.ok) {
                 console.log(formData1)
+                socket.emit("send-message", {
+
+                    message
+                })
+
             } else {
                 console.error('Error adding data:', response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);
         }
+
     }
     const [italic, setItalic] = React.useState(false);
     const [fontWeight, setFontWeight] = React.useState('normal');
@@ -148,15 +175,24 @@ export const CustomItem = (props: SchedulerItemProps) => {
             description: event.description,
             start_date_and_time: event.start,
             end_date_and_time: event.end,
-        }; const response = await fetch(`/api/add-event/${getCookie("accessToken")}`, {
+        };
+        const response = await fetch(`/api/add-event/${getCookie("accessToken")}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(formData1),
-        }).then(response => response.json()).then(data => {
-            setAlertstate(data)
         })
+
+        if (response.ok) {
+            setAlertstate(true)
+        } else {
+            console.error('Error adding data');
+
+        }
+
+
+
     }
 
 
@@ -181,6 +217,8 @@ export const CustomItem = (props: SchedulerItemProps) => {
                     if (showEdit) { setShowEdit(!showEdit) }
                     else { setShow(!show) }
                     console.log(props.dataItem)
+                    console.log(allMessages)
+
                     //setShowEdit(!showEdit)
                 }}
                 ref={ref}

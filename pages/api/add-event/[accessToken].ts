@@ -6,7 +6,6 @@ const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const accessToken = req.query.accessToken as string;
-    console.log("hello", req.body)
 
     const oAuth2Client = new google.auth.OAuth2();
     oAuth2Client.setCredentials({ access_token: accessToken });

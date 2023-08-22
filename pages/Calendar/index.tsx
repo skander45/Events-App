@@ -1,7 +1,7 @@
 import Header from './components/header1'
 import { FormWithCustomEditor } from "./components/custom-form";
 import {
-    Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView, SchedulerProportionalViewItem
+    Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView, SchedulerProportionalViewItem, SchedulerHeader
 } from '@progress/kendo-react-scheduler';
 import React, { useEffect } from 'react';
 import '@progress/kendo-theme-default/dist/all.css';
@@ -12,7 +12,10 @@ import { CustomItem } from "./components/CustomItem";
 import '@progress/kendo-date-math/tz/all'
 
 
+import Pusher from 'pusher-js';
 
+import io from "socket.io-client"
+let socket: any;
 
 
 function getCookie(cName: any) {
@@ -25,7 +28,9 @@ function getCookie(cName: any) {
     })
     return res;
 }
-
+/* const pusher = new Pusher('ed38f4656d54a7006f0e', {
+    cluster: 'eu'
+}); */
 const Calendar = () => {
     const currentDate: Date = new Date();
     const currentYear = new Date().getFullYear();
@@ -38,6 +43,12 @@ const Calendar = () => {
     const [state, setState] = useState(false);
     const [data, setData] = useState([]);
     const [comm, setComm] = useState(false);
+
+    const [allMessages, setAllMessages] = useState<any[]>([])
+
+
+    /*     const [count, setCount] = useState(0);
+     */
     useEffect(() => {
         if (getCookie("state") == "not connected") {
             router.push('/');
@@ -63,8 +74,25 @@ const Calendar = () => {
             setData(JSON.parse(JSON.stringify(data)))
         })
 
-    }, [])
-
+        socketInitializer()
+        /*  console.log("helllo")
+         const channel = pusher.subscribe('counter-channel');
+         channel.bind('update', function (data: any) {
+             alert(data)
+         });
+ 
+         return () => {
+             channel.unbind('update');
+             pusher.unsubscribe('counter-channel');
+         }; */
+    }, [allMessages])
+    async function socketInitializer() {
+        await fetch("/api/socket");
+        socket = io()
+        socket.on("receive-message", (data: any) => {
+            setAllMessages(data)
+        })
+    }
     const sampleData = data.map((dataItem: any) => (
         {
             id: dataItem.eventId,
@@ -85,7 +113,18 @@ const Calendar = () => {
         <div >
             {state && <>
                 <Header />
-                <Scheduler timezone='Africa/Tunis' item={CustomItem} data={sampleData} height={900} defaultDate={currentDate} editable={comm} form={FormWithCustomEditor} defaultView='week' style={{
+                {/* <div>
+                    <h1>Real-Time Counter: {count}</h1>
+                    <button
+                        onClick={() => {
+                            setCount(prevCount => prevCount + 1)
+
+                        }}
+                    >
+                        Increment Counter
+                    </button>
+                </div> */}
+                <Scheduler timezone='Africa/Tunis' item={CustomItem} data={sampleData} height={890} defaultDate={currentDate} editable={comm} form={FormWithCustomEditor} defaultView='week' style={{
                     fontSize: 16
                 }} >
                     <AgendaView />

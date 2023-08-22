@@ -108,8 +108,6 @@ const Home: NextPage = () => {
             if (authorizationCode) {
               resolve(authorizationCode);
               handleConnectGoogleCalendar(authorizationCode)
-              //              router.push('/Home');
-
             } else {
               reject(new Error('Authorization code not found'));
             }

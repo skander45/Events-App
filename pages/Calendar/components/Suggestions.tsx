@@ -2,11 +2,19 @@ import { useEffect, useState } from "react"
 import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
 import moment from "moment"
-
+import io from "socket.io-client"
+let socket: any;
 
 export const Suggestions = (props: any) => {
     const [user, setuser] = useAuthState(auth)
     const [suggestions, setSuggestions] = useState([]);
+
+    const [message, setMessage] = useState("update")
+    const [allMessages, setAllMessages] = useState<any[]>([])
+
+
+
+
     useEffect(() => {
         fetch(`/api/getSuggestions/${props.id}`, {
             method: 'GET',
@@ -17,7 +25,17 @@ export const Suggestions = (props: any) => {
         }).then(response => response.json()).then(data => {
             setSuggestions(JSON.parse(JSON.stringify(data.sort((a: any, b: any) => b.suggestionId - a.suggestionId))))
         })
-    }, [])
+        socketInitializer()
+    }, [allMessages])
+
+    async function socketInitializer() {
+        await fetch("/api/socket");
+        socket = io()
+        socket.on("receive-message", (data: any) => {
+            console.log(data)
+            setAllMessages(data)
+        })
+    }
     //websocket
     async function handleDelete(id: any) {
         try {
@@ -28,7 +46,10 @@ export const Suggestions = (props: any) => {
                 },
             });
             if (response.ok) {
-                console.log("ok")
+                socket.emit("send-message", {
+
+                    message
+                })
             } else {
                 console.error('Error deleting data:', response.statusText);
             }

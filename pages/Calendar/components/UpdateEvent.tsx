@@ -16,7 +16,8 @@ import Typography from '@mui/joy/Typography';
 import Dialog from '@mui/material/Dialog';
 import Check from '@mui/icons-material/Check';
 import IconButton from '@mui/joy/IconButton';
-
+import io from "socket.io-client"
+let socket: any;
 
 interface Event {
     eventId: number;
@@ -30,6 +31,9 @@ interface Event {
     type: string
 }
 export const UpdateEvent = (props: any) => {
+    const [message, setMessage] = useState("update")
+    const [allMessages, setAllMessages] = useState<any[]>([])
+
     const [alertstate, setAlertstate] = useState(false)
 
     const [event, setEvent] = useState<Event>({
@@ -43,6 +47,7 @@ export const UpdateEvent = (props: any) => {
         budget: 0,
         type: "",
     })
+
     useEffect(() => {
         fetch(`/api/getEvent/${props.id}`, {
             method: 'GET',
@@ -52,9 +57,16 @@ export const UpdateEvent = (props: any) => {
         }).then(response => response.json()).then(data => {
             setEvent(JSON.parse(JSON.stringify(data)))
         })
+        socketInitializer()
 
     }, [])
-
+    async function socketInitializer() {
+        await fetch("/api/socket");
+        socket = io()
+        socket.on("receive-message", (data: any) => {
+            setAllMessages(data)
+        })
+    }
     function handleChangeUpdateEvent(e: any) {
         setEvent({ ...event, [e.target.name]: e.target.value })
     }
@@ -69,8 +81,11 @@ export const UpdateEvent = (props: any) => {
                 body: JSON.stringify(event),
             });
             if (response.ok) {
-                console.log(event)
                 setAlertstate(true)
+                socket.emit("send-message", {
+
+                    message
+                })
             } else {
                 console.error('Error adding data:', response.statusText);
             }
@@ -87,7 +102,10 @@ export const UpdateEvent = (props: any) => {
                 },
             });
             if (response.ok) {
-                console.log("ok")
+                socket.emit("send-message", {
+
+                    message
+                })
             } else {
                 console.error('Error deleting data:', response.statusText);
             }
@@ -110,19 +128,21 @@ export const UpdateEvent = (props: any) => {
                         variant="outlined"
                         name="title"
                         onChange={handleChangeUpdateEvent}
-                        value={event.title}
+                        value={event.title || ""}
 
                     />
                 </div>
                 <div className="mt-6 border-t border-white-100">
                     <dl className="divide-y divide-white-100">
                         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                            <dt className="font-small leading-6 text-gray-900">Start Date and Time </dt>
+                            <dt className="font-small leading-6 text-gray-900">Start Date and Time
+
+                            </dt>
                             <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DateTimePicker onChange={(e) => {
                                         setEvent({ ...event, ["start_date_and_time"]: e?.format() || "" })
-                                    }} value={dayjs(event.start_date_and_time.slice(0, 19) + "+00:00")} label="start_date_and_time" />
+                                    }} value={dayjs(new Date(event.start_date_and_time))} label="start_date_and_time" />
                                 </LocalizationProvider>
                             </dd>
                         </div>
@@ -133,7 +153,7 @@ export const UpdateEvent = (props: any) => {
                                     <DateTimePicker
                                         onChange={(e) => {
                                             setEvent({ ...event, ["end_date_and_time"]: e?.format() || "" })
-                                        }} value={dayjs(event.end_date_and_time.slice(0, 19) + "+00:00")} label="end_date_and_time" />
+                                        }} value={dayjs(new Date(event.end_date_and_time))} label="end_date_and_time" />
                                 </LocalizationProvider>
                             </dd>
                         </div>
@@ -148,7 +168,7 @@ export const UpdateEvent = (props: any) => {
                                     variant="outlined"
                                     name="location"
                                     onChange={handleChangeUpdateEvent}
-                                    value={event.location}
+                                    value={event.location || ""}
                                 />
                             </dd>
                         </div>
@@ -174,7 +194,7 @@ export const UpdateEvent = (props: any) => {
                                     variant="outlined"
                                     name="description"
                                     onChange={handleChangeUpdateEvent}
-                                    value={event.description}
+                                    value={event.description || ""}
                                 />
                             </dd>
                         </div>

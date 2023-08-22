@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 
 export const AddParticipant = (props: any) => {
     const [user, setuser] = useAuthState(auth)
-    const [participants, setParticipants] = useState([]);
     const [going, setGoing] = useState(false)
     useEffect(() => {
         fetch(`/api/getParticipants/${props.id}`, {
@@ -15,11 +14,13 @@ export const AddParticipant = (props: any) => {
                 'Content-Type': 'application/json',
             },
         }).then(response => response.json()).then(data => {
-            setParticipants(JSON.parse(JSON.stringify(data)))
+            console.log(JSON.parse(JSON.stringify(data)))
+            let uids = JSON.parse(JSON.stringify(data)).map((item: any) => item.uid)
+            setGoing(uids.includes(user?.uid))
         })
-        let uids = participants.map((item: any) => item.uid)
-        setGoing(uids.includes(user?.uid))
     }, [])
+
+
     const addParticipant = async (id: any) => {
         const formData1 = {
             eventEventId: id,
@@ -36,13 +37,14 @@ export const AddParticipant = (props: any) => {
             });
 
             if (response.ok) {
-                console.log(formData1)
+                setGoing(true)
             } else {
                 console.error('Error adding data:', response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);
         }
+
     }
     const deleteParticipant = async (id1: any, id2: any) => {
         try {
@@ -53,7 +55,8 @@ export const AddParticipant = (props: any) => {
                 },
             });
             if (response.ok) {
-                console.log("ok")
+                setGoing(false)
+
             } else {
                 console.error('Error deleting data:', response.statusText);
             }
@@ -64,31 +67,20 @@ export const AddParticipant = (props: any) => {
     return (
         <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt className="font-small leading-6 text-gray-900">Going ?</dt>
-            {going && <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                 <Box sx={{ '& button': { ml: 10 } }}>
                     <Button style={{
 
                         borderColor: "#004B8D"
-                    }} variant="contained" size="small" disabled onClick={() => addParticipant(props.id)}>Yes</Button>
+                    }} variant="contained" size="small" disabled={going} onClick={() => addParticipant(props.id)}>Yes</Button>
 
                     <Button style={{
 
                         borderColor: "#004B8D"
-                    }} variant="contained" size="small" onClick={() => deleteParticipant(props.id, user?.uid)}>No</Button>
+                    }} variant="contained" size="small" disabled={!going} onClick={() => deleteParticipant(props.id, user?.uid)}>No</Button>
                 </Box>
-            </dd>}
-            {!going && <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                <Box sx={{ '& button': { ml: 10 } }}>
-                    <Button style={{
+            </dd>
 
-                        borderColor: "#004B8D"
-                    }} variant="contained" size="small" onClick={() => addParticipant(props.id)} >Yes</Button>
-
-                    <Button style={{
-                        borderColor: "#004B8D"
-                    }} variant="contained" size="small" disabled onClick={() => deleteParticipant(props.id, user?.uid)} >No</Button>
-                </Box>
-            </dd>}
 
         </div>
     )
