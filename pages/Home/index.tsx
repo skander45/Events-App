@@ -3,6 +3,7 @@ import { auth } from "../firebase"
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import { useAuthState } from "react-firebase-hooks/auth"
+import Head from 'next/head'
 
 import Header from './components/header'
 
@@ -48,6 +49,11 @@ const Home: NextPage = () => {
     return (
         <div>
             {state && <>
+                <Head>
+                    <title>Home</title>
+                    <meta name="description" content="Create Events for Cognira" />
+                    <link rel="icon" href="/cogniralogo1.png" />
+                </Head>
                 <Header />
                 <Box sx={{
                     width: 1500,

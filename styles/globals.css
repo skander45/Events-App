@@ -18,3 +18,41 @@ a {
 * {
   box-sizing: border-box;
 }
+
+#__next .k-button-solid-base.k-selected {
+  border-color: #6C757D;
+  background-color: #6C757D;
+}
+
+.k-scheduler-cell .k-slot-cell .k-selected {
+  color: black;
+}
+
+.k-button .k-button-md .k-button-solid .k-button-solid-primary .k-rounded-md .k-disabled {
+  background-color: antiquewhite;
+}
+
+.k-event-drag-hint {
+  opacity: .20 !important;
+  z-index: -3 !important;
+}
+
+.k-marquee {
+  z-index: -3 !important;
+  opacity: .20 !important;
+
+}
+
+.k-scheduler-layout td.k-selected,
+.k-scheduler-layout .k-scheduler-cell.k-selected {
+  background-color: #6C757D !important;
+  opacity: .20;
+}
+
+.k-current-time {
+  background: #6C757D !important;
+}
+
+.k-current-time.k-current-time-arrow-right {
+  border-left-color: #6C757D !important;
+}

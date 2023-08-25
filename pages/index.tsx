@@ -55,6 +55,9 @@ const Home: NextPage = () => {
         const credential = GoogleAuthProvider.credential(data.id_token);
         const result = await signInWithCredential(auth, credential)
         document.cookie = "state=connected"
+
+
+
         return data.access_token;
 
       } else {
@@ -64,6 +67,7 @@ const Home: NextPage = () => {
       throw new Error('Error exchanging authorization code');
     }
   }
+
   const handleConnectGoogleCalendar = async (authorizationCode: any) => {
     try {
       const data = await getAccessTokenFromCode(authorizationCode);
@@ -103,13 +107,17 @@ const Home: NextPage = () => {
         const checkPopupClosed = setInterval(() => {
           if (oauthPopup?.closed) {
             clearInterval(checkPopupClosed);
-            const urlSearchParams = new URLSearchParams(oauthPopup?.location?.search);
-            const authorizationCode = urlSearchParams.get('code');
-            if (authorizationCode) {
-              resolve(authorizationCode);
-              handleConnectGoogleCalendar(authorizationCode)
-            } else {
-              reject(new Error('Authorization code not found'));
+            try {
+              const urlSearchParams = new URLSearchParams(oauthPopup?.location?.search);
+              const authorizationCode = urlSearchParams.get('code');
+              if (authorizationCode) {
+                resolve(authorizationCode);
+                handleConnectGoogleCalendar(authorizationCode)
+              } else {
+                reject(new Error('Authorization code not found'));
+              }
+            } catch (error) {
+              console.log(error)
             }
           }
         }, 1000);
@@ -136,29 +144,27 @@ const Home: NextPage = () => {
       setState(true)
 
     }
-    if (user) {
-      fetch(`/api/getCommittee/${user?.uid}`, {
-        method: 'GET',
-        headers: {
-          'content-Type': 'application/json',
-        },
-      }).then(response => response.json()).then(
-        data => {
-          if (data) { document.cookie = "socialCommittee=true"; }
-          else { document.cookie = "socialCommittee=false"; }
-        }
-      )
-      document.cookie = "state=connected";
-    }
+    console.log(user?.uid)
+    fetch(`/api/getCommittee/${user?.uid}`, {
+      method: 'GET',
+      headers: {
+        'content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(
+      data => {
+        if (data) { document.cookie = "socialCommittee=true"; }
+        else { document.cookie = "socialCommittee=false"; }
+      }
+    )
   })
 
   return (
     <>
       {state && <>
         <Head>
-          <title>Events Planner</title>
+          <title>Cognira Events</title>
           <meta name="description" content="Create Events for Cognira" />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/cogniralogo1.png" />
         </Head>
         <Container component="main" fixed >
           <Box

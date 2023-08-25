@@ -2,6 +2,9 @@ import { useEffect, useState } from "react"
 import { auth } from "../../firebase"
 import { useAuthState } from "react-firebase-hooks/auth"
 import moment from "moment"
+import Box from '@mui/material/Box';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import io from "socket.io-client"
 let socket: any;
 
@@ -32,7 +35,6 @@ export const Suggestions = (props: any) => {
         await fetch("/api/socket");
         socket = io()
         socket.on("receive-message", (data: any) => {
-            console.log(data)
             setAllMessages(data)
         })
     }
@@ -65,10 +67,13 @@ export const Suggestions = (props: any) => {
                     return (
                         <ul key={value.suggestionId}>
                             <li className="text-sm font-medium leading-6 text-gray-900">{value.name}</li>
-                            <li>{value.suggestion}</li>
-                            {user?.uid == value.uid && <button onClick={() => handleDelete(value.suggestionId)} className="text-red-500 bg-red-500 border border-solid border-red-500 hover:bg-red-500 text-white active:bg-red-600 text-xs px-1 py-1 rounded-full outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-                                Delete
-                            </button>}
+                            <li>
+                                {value.suggestion}
+                                {user?.uid == value.uid &&
+                                    <button style={{ marginLeft: 200 }} onClick={() => handleDelete(value.suggestionId)} >
+                                        <DeleteIcon />
+                                    </button>}
+                            </li>
                             <li>{moment(value.date_and_time).fromNow()}</li>
 
                         </ul>

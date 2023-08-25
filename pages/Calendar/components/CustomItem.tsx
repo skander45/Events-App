@@ -1,6 +1,8 @@
+import { Icon } from '@iconify/react';
 import {
     SchedulerItem,
-    SchedulerItemProps, SchedulerItemHandle
+    SchedulerItemProps, SchedulerItemHandle, useSchedulerEditItemDragItemContext, useSchedulerEditItemResizeItemContext
+
 } from '@progress/kendo-react-scheduler';
 import React, { useEffect } from 'react';
 import '@progress/kendo-theme-default/dist/all.css';
@@ -41,7 +43,6 @@ import Dialog from '@mui/material/Dialog';
 import io from "socket.io-client"
 let socket: any;
 
-
 const PlusIcon = createSvgIcon(
     // credit: plus icon from https://heroicons.com/
     <svg
@@ -66,7 +67,8 @@ function getCookie(cName: any) {
     return res;
 }
 export const CustomItem = (props: SchedulerItemProps) => {
-
+    const [dragItem, setDragItem] = useSchedulerEditItemDragItemContext()
+    const [resizeItem, setResizeItem] = useSchedulerEditItemResizeItemContext()
     const [message, setMessage] = useState("update")
     const [allMessages, setAllMessages] = useState<any[]>([])
 
@@ -78,7 +80,6 @@ export const CustomItem = (props: SchedulerItemProps) => {
         await fetch("/api/socket");
         socket = io()
         socket.on("receive-message", (data: any) => {
-            console.log(data)
             setAllMessages(data)
         })
     }
@@ -194,7 +195,73 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
 
     }
+    const handledrag = async () => {
+        let newevenet = {
+            eventId: dragItem?.id,
+            title: dragItem?.title,
+            description: dragItem?.description,
+            end_date_and_time: dragItem?.end,
+            start_date_and_time: dragItem?.start,
+            location: dragItem?.location,
+            uidcreator: dragItem?.uidcreator,
+            budget: dragItem?.budget,
+            type: dragItem?.type,
+        }
+        try {
+            const response = await fetch(`/api/updateEvent/${dragItem.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newevenet),
+            });
+            if (response.ok) {
+                socket.emit("send-message", {
+                    message
+                })
+            } else {
+                console.error('Error adding data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
 
+
+    }
+
+    const handleresize = async () => {
+        let newevenet = {
+            eventId: resizeItem?.id,
+            title: resizeItem?.title,
+            description: resizeItem?.description,
+            end_date_and_time: resizeItem?.end,
+            start_date_and_time: resizeItem?.start,
+            location: resizeItem?.location,
+            uidcreator: resizeItem?.uidcreator,
+            budget: resizeItem?.budget,
+            type: resizeItem?.type,
+        }
+        try {
+            const response = await fetch(`/api/updateEvent/${resizeItem.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newevenet),
+            });
+            if (response.ok) {
+                socket.emit("send-message", {
+                    message
+                })
+            } else {
+                console.error('Error adding data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
+
+    }
 
     return (
         <React.Fragment>
@@ -208,24 +275,30 @@ export const CustomItem = (props: SchedulerItemProps) => {
                             (props.dataItem.type == "winter event") ? '#FFA600' :
                                 (props.dataItem.type == "sign off celebration") ? '#007B86' :
                                     "#004B8D",
+
                     }
 
                 }
 
+                onRelease={() => {
+                    handledrag()
+
+                }}
+                onResizeRelease={() => {
+                    handleresize()
+                }}
                 onClick={() => {
 
                     if (showEdit) { setShowEdit(!showEdit) }
                     else { setShow(!show) }
-                    console.log(props.dataItem)
-                    console.log(allMessages)
-
-                    //setShowEdit(!showEdit)
                 }}
                 ref={ref}
                 onDoubleClick={() => console.log("edit")}
             />
             <Popup
                 show={show}
+
+
                 anchor={ref.current && ref.current.element}
                 offset={offset}
                 popupClass={"popup-content"}
@@ -347,11 +420,8 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                                                     >
                                                                         <FormatItalic />
                                                                     </IconButton>
-                                                                    <Button style={{
-
-                                                                        borderColor: "#004B8D"
-                                                                    }} variant="contained" size="small"
-                                                                        sx={{ ml: 'auto' }} type="submit">Send</Button>
+                                                                    <Button variant="contained" size="small"
+                                                                        sx={{ ml: 'auto' }} type="submit"><SendIcon /></Button>
 
                                                                 </Box>
                                                             }
@@ -458,7 +528,8 @@ export const CustomItem = (props: SchedulerItemProps) => {
                             </div>
                             <Button style={{
                                 marginLeft: 175
-                            }} variant="outlined" startIcon={<PlusIcon />} onClick={() => { addEvent(props.dataItem) }}>Add to Google Calendar</Button>
+                            }} variant="contained" startIcon={<Icon icon="logos:google-calendar" />} onClick={() => { addEvent(props.dataItem) }}>
+                                Add to my Google Calendar</Button>
                             <Dialog open={alertstate} style={{
                             }}>
                                 <Alert
