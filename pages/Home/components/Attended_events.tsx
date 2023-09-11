@@ -40,8 +40,8 @@ export const Attended_events = (props: any) => {
     const optionscolumnchart: any = {
         chart: {
             type: 'donut',
-            fontFamily: "'Plus Jakarta Sans', sans-serif;",
-            foreColor: '#adb0bb',
+            fontFamily: "sans-serif;",
+            foreColor: '#207EC2',
             toolbar: {
                 show: false,
             },
@@ -96,7 +96,7 @@ export const Attended_events = (props: any) => {
                     <Stack spacing={3} mt={5} direction="row">
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Avatar
-                                sx={{ width: 9, height: 9, bgcolor: primary, svg: { display: 'none' } }}
+                                sx={{ width: 9, height: 9, bgcolor: "#207EC2", svg: { display: 'none' } }}
                             ></Avatar>
                             <Typography variant="subtitle2" color="textSecondary">
                                 Attended

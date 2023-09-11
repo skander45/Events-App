@@ -1,11 +1,12 @@
 import * as React from "react";
-import { FormElement, Field, FieldRenderProps } from "@progress/kendo-react-form";
+import { FormElement, Field, Form, FormRenderProps, FieldRenderProps, FormValidatorType } from "@progress/kendo-react-form";
 import { Label } from "@progress/kendo-react-labels";
 import { TextArea, RadioGroup } from "@progress/kendo-react-inputs";
 import { DatePicker, DateTimePicker } from "@progress/kendo-react-dateinputs";
 import { SchedulerFormEditorProps } from "@progress/kendo-react-scheduler";
 import { Error } from "@progress/kendo-react-labels";
 import { Input } from "@progress/kendo-react-inputs";
+import { getter } from "@progress/kendo-react-common";
 const MyCustomInput = (fieldRenderProps: any) => {
     const { onChange, value } = fieldRenderProps;
     const data = [
@@ -18,43 +19,39 @@ const MyCustomInput = (fieldRenderProps: any) => {
     );
 };
 
-const MyValidator = (value: string) =>
-    value != "" ? "" : "This field is required.";
-const MyInput = (fieldRenderProps: FieldRenderProps) => {
-    const { validationMessage, visited, ...others } = fieldRenderProps;
-    return (
-        <div>
-            <Input {...others} />
-            {visited && validationMessage && <Error>{validationMessage}</Error>}
-        </div>
-    );
-};
-export const CustomFormEditor = (props: SchedulerFormEditorProps) => {
+export const CustomFormEditor = (props: any) => {
+    console.log(props)
     return (
         <FormElement horizontal={true}>
             <fieldset className={"k-form-fieldset"}>
                 <div className="k-form-field">
-                    <Label>Title*</Label>
+                    <Label>Title</Label>
                     <div className="k-form-field-wrap">
-                        <Field validator={MyValidator} name={"title"} component={MyInput} rows={1} />
+                        <Field name={"title"} component={TextArea} rows={1} />
+                        {props.errors.title && <Error>{props.errors.title}</Error>}
+
                     </div>
                 </div>
                 <div className="k-form-field">
-                    <Label >Location*</Label>
+                    <Label >Location</Label>
                     <div className="k-form-field-wrap">
-                        <Field validator={MyValidator} name={"location"} component={MyInput} rows={1} />
+                        <Field name={"location"} component={TextArea} rows={1} />
+                        {props.errors.location && <Error>{props.errors.location}</Error>}
+
                     </div>
                 </div>
                 <div className="k-form-field">
-                    <Label  >Type*</Label>
+                    <Label  >Type</Label>
                     <div className="k-form-field-wrap">
-                        <Field validator={MyValidator} name={"type"} component={MyCustomInput} rows={1} />
+                        <Field name={"type"} component={MyCustomInput} rows={1} />
+                        {props.errors.type && <Error>{props.errors.type}</Error>}
+
                     </div>
                 </div>
                 <div className="k-form-field">
                     <Label>Note</Label>
                     <div className="k-form-field-wrap">
-                        <Field name={"description"} component={TextArea} rows={1} />
+                        <Field name={"description"} component={TextArea} rows={1} value={"skander"} />
                     </div>
                 </div>
                 <div className="k-form-field">

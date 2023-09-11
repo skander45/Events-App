@@ -4,10 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router';
 import { useAuthState } from "react-firebase-hooks/auth"
 import Head from 'next/head'
-
 import Header from './components/header'
-
-
 import { Grid, Box } from '@mui/material';
 import { Attended_events } from './components/Attended_events';
 import Recent_Events from './components/Recent_Events';

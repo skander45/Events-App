@@ -32,14 +32,13 @@ export const Upcoming_Events1 = (props: any) => {
 
   const theme = useTheme();
   const primary = theme.palette.primary.main;
-  const successlight = theme.palette.success.light;
   return (
     <DashboardCard>
       <>
-        <Typography variant="h3" fontWeight="700" align="center" color={primary}>
+        <Typography variant="h3" fontWeight="700" align="center" color="#207EC2">
           Upcoming Events
         </Typography>
-        <Typography variant="h2" fontWeight="700" mt="+10px" align="center" color={successlight}>
+        <Typography variant="h2" fontWeight="700" mt="+10px" align="center" color="#007B86">
           {events.length}
         </Typography>
         <Typography variant="h5" fontWeight="400" mt="+10px" align="center">

@@ -1,6 +1,9 @@
 import * as React from 'react';
-import { Dialog, DialogProps } from '@progress/kendo-react-dialogs';
+import { Dialog, DialogProps, DialogActionsBar } from '@progress/kendo-react-dialogs';
 
 export const CustomDialog = (props: DialogProps) => {
-    return <Dialog {...props} themeColor='light' title={'Add Event'} />;
+    console.log('props hnéé', props);
+    return <Dialog  {...props} closeIcon={false} themeColor='light' title={'Add Event'} >
+
+    </Dialog>;
 };

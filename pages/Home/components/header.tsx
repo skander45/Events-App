@@ -26,7 +26,7 @@ const Header: NextPage = () => {
     }));
 
     return (
-        <div>
+        <div >
             <AppBarStyled position="sticky" color="default">
                 <ToolbarStyled>
                     <Image src="/Cognira_Logo_Approved.jpg" width={220}
@@ -38,28 +38,28 @@ const Header: NextPage = () => {
                             color: "#505050 "
                         }} size={25} />
                         <Link href="/Calendar" >
-                            <button style={{
-                                backgroundColor: "#007ED3 "
-                            }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+                            <Button variant="contained" style={{
+                                backgroundColor: "#207EC2 "
+                            }}>
                                 Open Calendar
-                            </button>
+                            </Button>
                         </Link>
-                        <button style={{
-                            backgroundColor: "#007ED3 "
-                        }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => {
+                        <Button variant="contained" style={{
+                            backgroundColor: "#207EC2 "
+                        }} onClick={() => {
                             auth.signOut()
                             document.cookie = "state=not connected";
                             router.push('/');
                         }
                         }>Sign Out
-                        </button>
+                        </Button>
                         <div style={{
                             color: "#505050 "
                         }} className="sm:text-3xl text-1xl font-bold ">
                             {user?.displayName}
                         </div>
                         <img style={{
-                            borderRadius: "50%"
+                            borderRadius: "10%"
                         }} src={user?.photoURL!} width={50} height={50} alt="Avatar" />
 
                     </Stack>

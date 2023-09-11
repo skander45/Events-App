@@ -13,7 +13,6 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { Suggestions } from './Suggestions';
 import { Participants } from './Participants';
 import { AddParticipant } from './AddParticipant';
-import { UpdateEvent } from './UpdateEvent';
 import { Feedbacks } from './Feedbacks';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -23,7 +22,7 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import IconButton from '@mui/joy/IconButton';
 import Menu from '@mui/joy/Menu';
-import MenuItem from '@mui/joy/MenuItem';
+import MenuItem from '@mui/material/MenuItem';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import FormatBold from '@mui/icons-material/FormatBold';
 import FormatItalic from '@mui/icons-material/FormatItalic';
@@ -40,7 +39,13 @@ import AspectRatio from '@mui/joy/AspectRatio';
 import Close from '@mui/icons-material/Close';
 import Typography from '@mui/joy/Typography';
 import Dialog from '@mui/material/Dialog';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import Select from '@mui/material/Select';
+import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
 import io from "socket.io-client"
+import EditIcon from '@mui/icons-material/Edit';
 let socket: any;
 
 const PlusIcon = createSvgIcon(
@@ -66,12 +71,36 @@ function getCookie(cName: any) {
     })
     return res;
 }
+interface Event {
+    eventId: number;
+    title: string;
+    budget: number
+    description: string
+    end_date_and_time: string
+    start_date_and_time: string
+    location: string
+    uidcreator: string
+    type: string
+}
 export const CustomItem = (props: SchedulerItemProps) => {
     const [dragItem, setDragItem] = useSchedulerEditItemDragItemContext()
     const [resizeItem, setResizeItem] = useSchedulerEditItemResizeItemContext()
     const [message, setMessage] = useState("update")
     const [allMessages, setAllMessages] = useState<any[]>([])
+    const [alertstate2, setAlertstate2] = useState(false)
+    const [alertstate1, setAlertstate1] = useState(false)
 
+    const [event, setEvent] = useState<Event>({
+        eventId: 0,
+        title: "",
+        description: "",
+        end_date_and_time: "",
+        start_date_and_time: "",
+        location: "",
+        uidcreator: "",
+        budget: 0,
+        type: "",
+    })
     useEffect(() => {
         socketInitializer()
     }, [])
@@ -262,7 +291,48 @@ export const CustomItem = (props: SchedulerItemProps) => {
 
 
     }
+    function handleChangeUpdateEvent(e: any) {
+        setEvent({ ...event, [e.target.name]: e.target.value })
+    }
+    async function handleSubmitUpdateEvent(e: any, id: any) {
+        e.preventDefault();
+        try {
+            const response = await fetch(`/api/updateEvent/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(event),
+            });
+            if (response.ok) {
+                setAlertstate2(true)
 
+            } else {
+                console.error('Error adding data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    async function handleDelete(id: any) {
+        try {
+            const response = await fetch(`/api/deleteEvent/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                setAlertstate1(true)
+
+
+            } else {
+                console.error('Error deleting data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
     return (
         <React.Fragment>
             <SchedulerItem
@@ -303,18 +373,18 @@ export const CustomItem = (props: SchedulerItemProps) => {
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div style={{ width: 650, height: 290, fontSize: 16, overflow: "auto", backgroundColor: "#F2F2F2" }}>
+                <div style={{ width: 650, height: 320, fontSize: 15, overflow: "auto", backgroundColor: "#F2F2F2" }}>
                     <div className="p-4">
                         <div>
                             <div className="px-7 sm:px-0">
-                                <h1 className="text-xlg font-bold leading-8 text-gray-900">{props.dataItem.title}</h1>
+                                <h1 className=" font-bold leading-8 text-gray-900">{props.dataItem.title}</h1>
                             </div>
                             <div className="mt-1 border-t border-white-100">
                                 <dl className="divide-y divide-white-100">
                                     <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                         <dt className=" font-small leading-6 text-gray-900">Start Date and Time </dt>
 
-                                        <dd className="mt-1  leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DateTimeField
                                                     value={dayjs(props.dataItem.start)}
@@ -503,11 +573,8 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                                                     >
                                                                         <FormatItalic />
                                                                     </IconButton>
-                                                                    <Button style={{
-
-                                                                        borderColor: "#004B8D"
-                                                                    }} variant="contained" size="small"
-                                                                        sx={{ ml: 'auto' }} type="submit">Send</Button>
+                                                                    <Button variant="contained" size="small"
+                                                                        sx={{ ml: 'auto' }} type="submit"><SendIcon /></Button>
 
                                                                 </Box>
                                                             }
@@ -527,7 +594,9 @@ export const CustomItem = (props: SchedulerItemProps) => {
                                 </dl>
                             </div>
                             <Button style={{
-                                marginLeft: 175
+                                marginLeft: 175,
+                                backgroundColor: "#207EC2"
+
                             }} variant="contained" startIcon={<Icon icon="logos:google-calendar" />} onClick={() => { addEvent(props.dataItem) }}>
                                 Add to my Google Calendar</Button>
                             <Dialog open={alertstate} style={{
@@ -580,24 +649,39 @@ export const CustomItem = (props: SchedulerItemProps) => {
                     </div>
 
                 </div>
-                <Box sx={{ '& button': { ml: 20 } }}>
+                <div className='buttonsview'>
 
                     {user?.uid == props.dataItem.uidcreator && <>
-                        <Button variant="outlined" size="small" style={{
-                            color: "#004B8D",
-                            borderColor: "#004B8D"
+                        <Button variant="contained" size="small" sx={{
+                            borderColor: "#207EC2",
+                            ":hover": {
+                                bgcolor: "#207EC2",
+                            }
                         }} onClick={() => {
                             setShow(!show)
                             setShowEdit(!showEdit)
-                        }}>Edit</Button>
+                            fetch(`/api/getEvent/${props.dataItem.id}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            }).then(response => response.json()).then(data => {
+                                setEvent(JSON.parse(JSON.stringify(data)))
+                            })
+                        }} startIcon={<EditIcon />}>Edit</Button>
                     </>}
-                    <Button onClick={() => setShow(!show)} variant="outlined" size="small" style={{
+                    <Button className='cancelviewbutton' onClick={() => setShow(!show)} variant="contained" size="small" sx={{
                         color: "#6C757D",
-                        borderColor: "#6C757D"
-                    }}>
-                        Close PopUp
+                        backgroundColor: "#F2F2F2",
+                        ":hover": {
+                            bgcolor: "#F2F2F2",
+
+                        }
+
+                    }} startIcon={<DoDisturbAltIcon />} >
+                        Cancel
                     </Button>
-                </Box>
+                </div>
             </Popup >
 
             <Popup
@@ -606,16 +690,223 @@ export const CustomItem = (props: SchedulerItemProps) => {
                 offset={offset}
                 popupClass={"popup-content"}
             >
-                <div style={{ overflow: "auto", width: 650, height: 320, fontSize: 16, backgroundColor: "#F2F2F2" }}>
-                    <UpdateEvent id={props.dataItem.id} />
+                <div style={{ overflow: "auto", width: 650, height: 320, fontSize: 15, backgroundColor: "#F2F2F2" }}>
+                    {/*                     Begin of update event
+ */}
+                    <div>
+                        <form id="myform" onSubmit={(e) => handleSubmitUpdateEvent(e, props.dataItem.id)} className="p-4" >
+
+                            <div>
+                                <Textarea
+                                    sx={{ mr: 50 }}
+
+                                    disabled={false}
+                                    minRows={1}
+                                    placeholder="Write a Title"
+                                    size="md"
+                                    variant="outlined"
+                                    name="title"
+                                    onChange={handleChangeUpdateEvent}
+                                    value={event.title || ""}
+
+                                />
+                            </div>
+                            <div className="mt-6 border-t border-white-100">
+                                <dl className="divide-y divide-white-100">
+                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="font-small leading-6 text-gray-900">Start Date and Time
+
+                                        </dt>
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimePicker onChange={(e) => {
+                                                    setEvent({ ...event, ["start_date_and_time"]: e?.format() || "" })
+                                                }} value={dayjs(new Date(event.start_date_and_time))} label="start_date_and_time" />
+                                            </LocalizationProvider>
+                                        </dd>
+                                    </div>
+                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="font-small leading-6 text-gray-900">End Date and Time</dt>
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimePicker
+                                                    onChange={(e) => {
+                                                        setEvent({ ...event, ["end_date_and_time"]: e?.format() || "" })
+                                                    }} value={dayjs(new Date(event.end_date_and_time))} label="end_date_and_time" />
+                                            </LocalizationProvider>
+                                        </dd>
+                                    </div>
+                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="font-small leading-6 text-gray-900">Location</dt>
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <Textarea
+                                                disabled={false}
+                                                minRows={1}
+                                                placeholder="Write a Location"
+                                                size="md"
+                                                variant="outlined"
+                                                name="location"
+                                                onChange={handleChangeUpdateEvent}
+                                                value={event.location || ""}
+                                            />
+                                        </dd>
+                                    </div>
+                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="font-small leading-6 text-gray-900">Type</dt>
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <Select name="type" onChange={handleChangeUpdateEvent} value={event.type} >
+                                                <MenuItem value={"summer event"}>Summer Event</MenuItem>
+                                                <MenuItem value={"winter event"}>Winter Event</MenuItem>
+                                                <MenuItem value={"sign off celebration"}>Sign off Celebration</MenuItem>
+                                                <MenuItem value={"other"}>Other</MenuItem>
+                                            </Select>
+                                        </dd>
+                                    </div>
+                                    <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                        <dt className="font-small leading-6 text-gray-900">Description</dt>
+                                        <dd className="mt-1 leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                            <Textarea
+                                                disabled={false}
+                                                minRows={3}
+                                                placeholder="Write a description"
+                                                size="md"
+                                                variant="outlined"
+                                                name="description"
+                                                onChange={handleChangeUpdateEvent}
+                                                value={event.description || ""}
+                                            />
+                                        </dd>
+                                    </div>
+
+                                </dl>
+                            </div>
+                        </form>
+                        <Dialog open={alertstate2} style={{
+                        }}>
+                            <Alert
+                                size="lg"
+
+                                color="success"
+                                variant="solid"
+                                invertedColors
+                                startDecorator={
+                                    <AspectRatio
+                                        variant="solid"
+                                        ratio="1"
+                                        sx={{
+                                            minWidth: 40,
+                                            borderRadius: '50%',
+                                            boxShadow: '0 2px 12px 0 rgb(0 0 0/0.2)',
+                                        }}
+                                    >
+                                        <div>
+                                            <Check />
+                                        </div>
+                                    </AspectRatio>
+                                }
+                                endDecorator={
+                                    <IconButton
+                                        variant="plain"
+                                        sx={{
+                                            '--IconButton-size': '32px',
+                                            transform: 'translate(0.5rem, -0.5rem)',
+                                        }}
+                                        onClick={() => {
+                                            setAlertstate2(false)
+                                            socket.emit("send-message", {
+
+                                                message
+                                            })
+                                        }}
+                                    >
+                                        <Close />
+                                    </IconButton>
+                                }
+                                sx={{ alignItems: 'flex-start', overflow: 'hidden', borderRadius: 0 }}
+                            >
+                                <div>
+                                    <Typography level="title-lg">Event updated successfully</Typography>
+                                    <Typography level="body-sm">
+                                        {event.title} from {String(new Date(event.start_date_and_time)).slice(0, 24)} to {String(new Date(event.end_date_and_time)).slice(0, 24)}
+                                    </Typography>
+                                </div>
+
+                            </Alert>
+                        </Dialog>
+                        <Dialog open={alertstate1} style={{
+                        }}>
+                            <Alert
+                                size="lg"
+                                color="neutral"
+                                variant="solid"
+                                invertedColors
+                                startDecorator={
+                                    <AspectRatio
+                                        variant="solid"
+                                        ratio="1"
+                                        sx={{
+                                            minWidth: 40,
+                                            borderRadius: '50%',
+                                            boxShadow: '0 2px 12px 0 rgb(0 0 0/0.2)',
+                                        }}
+                                    >
+                                        <div>
+                                            <DeleteIcon />
+                                        </div>
+                                    </AspectRatio>
+                                }
+                                endDecorator={
+                                    <IconButton
+                                        variant="plain"
+                                        sx={{
+                                            '--IconButton-size': '32px',
+                                            transform: 'translate(0.5rem, -0.5rem)',
+                                        }}
+                                        onClick={() => {
+                                            setAlertstate1(false)
+                                            socket.emit("send-message", {
+
+                                                message
+                                            })
+                                        }}
+                                    >
+                                        <Close />
+                                    </IconButton>
+                                }
+                                sx={{ alignItems: 'flex-start', overflow: 'hidden', borderRadius: 0 }}
+                            >
+                                <div>
+                                    <Typography level="title-lg">Event deleted</Typography>
+                                    <Typography level="body-sm">
+                                        {event.title} from {String(new Date(event.start_date_and_time)).slice(0, 24)} to {String(new Date(event.end_date_and_time)).slice(0, 24)}
+                                    </Typography>
+                                </div>
+
+                            </Alert>
+                        </Dialog>
+                    </div>
                 </div>
-                <div style={{ marginLeft: 305 }}>
-                    <Button onClick={() => setShowEdit(!showEdit)} variant="outlined" size="small" style={{
+                <div className='buttonsedit' >
+                    <Button sx={{
+                        backgroundColor: "#207EC2",
+                        ":hover": {
+                            bgcolor: "#207EC2",
+                        }
+                    }} form="myform" size="small" variant="contained" startIcon={<SaveIcon />} type='submit'>Save</Button>
+                    <Button size="small" variant="contained" color="error" startIcon={<DeleteIcon />} onClick={() => handleDelete(event.eventId)} className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-small rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+                        Delete
+                    </Button>
+                    <Button onClick={() => setShowEdit(!showEdit)} variant="contained" size="small" sx={{
                         color: "#6C757D",
-                        borderColor: "#6C757D"
-                    }}>
-                        Close
-                    </Button></div>
+                        backgroundColor: "#F2F2F2",
+                        ":hover": {
+                            bgcolor: "#F2F2F2",
+                        }
+                    }} startIcon={<DoDisturbAltIcon />} >
+
+                        Cancel
+                    </Button>
+                </div>
             </Popup>
         </React.Fragment >
     )

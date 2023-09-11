@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* $primary: #207EC2;
+$kendo-color-primary: #207EC2;
+$kendo-color-secondary: #207EC2;*/
+//@import '~@progress/kendo-theme-default/dist/all.scss';
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-size: 15px;
+
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#__next .k-button-solid-base.k-selected {
+  border-color: #207EC2;
+  background-color: #207EC2;
+}
+
+.k-scheduler-cell .k-slot-cell .k-selected {
+  color: #207EC2;
+}
+
+.k-button .k-button-md .k-button-solid .k-button-solid-primary .k-rounded-md .k-disabled {
+  background-color: #207EC2;
+}
+
+.k-event-drag-hint {
+  opacity: .20 !important;
+  z-index: -3 !important;
+}
+
+.k-marquee {
+  z-index: -1 !important;
+  opacity: .20 !important;
+
+}
+
+.k-scheduler-layout td.k-selected,
+.k-scheduler-layout .k-scheduler-cell.k-selected {
+  background-color: #207EC2 !important;
+  opacity: .20;
+}
+
+.k-current-time {
+  background: #207EC2 !important;
+}
+
+.k-current-time.k-current-time-arrow-right {
+  border-left-color: #207EC2 !important;
+}
+
+.k-body {
+  font-size: 10px !important;
+  /* font-family: var(--kendo-font-family, inherit);
+  line-height: var(--kendo-line-height, normal);
+  font-weight: var(--kendo-font-weight, normal);
+  letter-spacing: var(--kendo-letter-spacing, normal);
+  color: var(--kendo-body-text, initial);
+  background-color: var(--kendo-body-bg, initial);
+  margin: 0; */
+}
+
+.k-scheduler {
+  font-size: 15px !important;
+}
+
+.buttonsedit {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding-block: 8px;
+  padding-inline: 8px;
+  border-width: 1px 0 0;
+  border-style: solid;
+  border-color: inherit;
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  justify-content: flex-end;
+
+}
+
+.buttonsview {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding-block: 8px;
+  padding-inline: 8px;
+  border-width: 1px 0 0;
+  border-style: solid;
+  border-color: inherit;
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  justify-content: flex-end;
+
+}
+
+.k-dialog-actions {
+  justify-content: flex-end !important;
+}
+
+.k-button-solid-primary {
+  background-color: #207EC2 !important;
+  border-color: #207EC2 !important;
+}

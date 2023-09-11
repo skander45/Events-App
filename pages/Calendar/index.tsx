@@ -1,18 +1,19 @@
 import Header from './components/header1'
+import type { NextPage } from 'next'
 import { FormWithCustomEditor } from "./components/custom-form";
 import {
     Scheduler, AgendaView, TimelineView, DayView, WeekView, MonthView, SchedulerProportionalViewItem, SchedulerHeader, SchedulerEditItemProps, SchedulerEditItem, SchedulerItemHandle
 } from '@progress/kendo-react-scheduler';
 import React, { useEffect } from 'react';
-import '@progress/kendo-theme-default/dist/all.css';
 import { useState } from 'react'
 import { useRouter } from 'next/router';
 import { CustomItem } from "./components/CustomItem";
 import Head from 'next/head'
 import '@progress/kendo-date-math/tz/all'
 import io from "socket.io-client"
-let socket: any;
 
+
+let socket: any;
 function getCookie(cName: any) {
     const name = cName + "=";
     const cDecoded = decodeURIComponent(document.cookie);
@@ -24,7 +25,7 @@ function getCookie(cName: any) {
     return res;
 }
 
-const Calendar = () => {
+const Calendar: NextPage = () => {
     const currentDate: Date = new Date();
     const currentYear = new Date().getFullYear();
     const parseAdjust = (eventDate: any) => {
@@ -90,53 +91,6 @@ const Calendar = () => {
                 Number(String(dataItem.end_date_and_time).slice(8, 10)) - Number(String(dataItem.start_date_and_time).slice(8, 10)) >= 1)
         }
     ));
-    /* const CustomEditItem = (props: SchedulerEditItemProps) => {
-        props.onCancel
-        const handledrag = async (event: any) => {
-            let newevenet = {
-                eventId: event.dataItem.id,
-                title: event.dataItem.title,
-                description: event.dataItem.description,
-                end_date_and_time: event.dataItem.end,
-                start_date_and_time: event.dataItem.start,
-                location: event.dataItem.location,
-                uidcreator: event.dataItem.uidcreator,
-                budget: event.dataItem.budget,
-                type: event.dataItem.type,
-            }
-            try {
-                const response = await fetch(`/api/updateEvent/${event.dataItem.id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newevenet),
-                });
-                if (response.ok) {
-                    socket.emit("send-message", {
-                        message
-                    })
-                } else {
-                    console.error('Error adding data:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-        const ref = React.useRef<SchedulerItemHandle>(null);
-
-        return (
-            <SchedulerEditItem
-                {...props}
-                ref={ref}
-
-                onDataAction={(e) => handledrag(e)}
-
-            />
-        );
-    }; */
-
-
     return (
         <div >
             {state && <>
@@ -147,7 +101,7 @@ const Calendar = () => {
                 </Head>
                 <Header />
 
-                <Scheduler header={(props) => <SchedulerHeader size={"small"} style={{ color: "black" }} {...props} />} timezone='Africa/Tunis' item={CustomItem} data={sampleData} height={890} defaultDate={currentDate} editable={comm} form={FormWithCustomEditor} defaultView='week' style={{
+                <Scheduler header={(props) => <SchedulerHeader size={"small"} {...props} />} timezone='Africa/Tunis' item={CustomItem} data={sampleData} height={890} defaultDate={currentDate} editable={comm} form={FormWithCustomEditor} defaultView='week' style={{
                     fontSize: 16
                 }} /* editItem={CustomEditItem} */ >
                     <AgendaView />
